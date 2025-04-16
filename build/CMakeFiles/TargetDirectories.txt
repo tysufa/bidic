@@ -1,0 +1,6 @@
+/home/tysufa/programmation/bidic/build/CMakeFiles/Lexer.dir
+/home/tysufa/programmation/bidic/build/CMakeFiles/Bidic.dir
+/home/tysufa/programmation/bidic/build/CMakeFiles/LexerTests.dir
+/home/tysufa/programmation/bidic/build/CMakeFiles/test.dir
+/home/tysufa/programmation/bidic/build/CMakeFiles/edit_cache.dir
+/home/tysufa/programmation/bidic/build/CMakeFiles/rebuild_cache.dir
