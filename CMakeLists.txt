@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
 project(Bidic LANGUAGES CXX)
 
+set (CMAKE_CXX_STANDARD 20)
+
 # --- Lexer Library ---
 add_library(Lexer STATIC
   src/lexer/lexer.hh

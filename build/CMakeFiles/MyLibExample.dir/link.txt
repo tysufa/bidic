@@ -1,2 +1,0 @@
-/usr/bin/ar qc libMyLibExample.a CMakeFiles/MyLibExample.dir/src/lexer.cc.o
-/usr/bin/ranlib libMyLibExample.a

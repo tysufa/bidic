@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/LexerTests.dir/tests/lexer/TestLexer.cpp.o -o LexerTests  libLexer.a 

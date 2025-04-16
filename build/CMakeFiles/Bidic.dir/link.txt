@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/Bidic.dir/src/main.cpp.o -o Bidic  libLexer.a 

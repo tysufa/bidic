@@ -15,8 +15,11 @@ void runLexerTests(){
     bool success = true;
     // Test 1 : input
     {
-        Lexer lexer("hello lexer");
-        TEST(lexer.input() == "hello lexe");
+        Lexer lexer("int test = 3;");
+        TEST(lexer.input() == "int test = 3;");
+        TEST(lexer.Tokens()[0].type == TokenType::kInt);
+        TEST(lexer.Tokens()[1].type == TokenType::kVariable);
+        TEST(lexer.Tokens()[1].value == "test");
     }
 
     if (!success) {
