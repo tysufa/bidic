@@ -15,11 +15,17 @@ void runLexerTests(){
     bool success = true;
     // Test 1 : input
     {
-        Lexer lexer("int test = 3;");
-        TEST(lexer.input() == "int test = 3;");
-        TEST(lexer.Tokens()[0].type == TokenType::kInt);
-        TEST(lexer.Tokens()[1].type == TokenType::kVariable);
-        TEST(lexer.Tokens()[1].value == "test");
+        std::string input = "int test = 34;";
+        Lexer lexer(input);
+        std::vector<Token> tokens = lexer.Tokens();
+        TEST(lexer.input() == input);
+        TEST(tokens[0].type == TokenType::kInt);
+        TEST(tokens[1].type == TokenType::kVariable);
+        TEST(tokens[1].value == "test");
+        TEST(tokens[2].type == TokenType::kEqual);
+        TEST(tokens[3].type == TokenType::kNumber);
+        TEST(tokens[3].value == "34");
+        TEST(tokens[4].type == TokenType::kSemiColon);
     }
 
     if (!success) {
