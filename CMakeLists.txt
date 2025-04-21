@@ -13,16 +13,30 @@ target_include_directories(Lexer PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/lexer
 )
 
+# --- Ast Library (Header only) ---
+add_library(Ast INTERFACE)
+
+target_include_directories(Ast INTERFACE
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/ast
+)
+
 # --- Main Executable ---
 add_executable(Bidic src/main.cpp)
-target_link_libraries(Bidic PRIVATE Lexer)
+target_link_libraries(Bidic PRIVATE Lexer Ast)
 
 # --- Manual Test Executable ---
 add_executable(LexerTests
   tests/lexer/TestLexer.cpp
 )
+add_executable(ParserTest
+  tests/parser/TestParser.cpp
+)
+
 target_link_libraries(LexerTests PRIVATE Lexer)
+
+target_link_libraries(ParserTest PRIVATE Lexer Ast)
 
 # Optional: Add as a test target
 enable_testing()
 add_test(NAME LexerTests COMMAND LexerTests)
+add_test(NAME ParserTest COMMAND ParserTest)
