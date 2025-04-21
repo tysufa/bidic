@@ -1,5 +1,5 @@
 #include <iostream>
-#include "lexer/lexer.hh"
+#include "lexer.hh"
 
 /// @brief Applies Foo's algorithm on x
 ///
@@ -15,6 +15,8 @@ int main(){
     Lexer tempo("int a = 3;");
 
     std::cout << "hello world" << std::endl;
+
+    tempo.Tokens();
 
     return 0;
 }

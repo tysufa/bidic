@@ -6,11 +6,12 @@ set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # --- Lexer Library ---
 add_library(Lexer STATIC
-  src/lexer/lexer.hh
+  src/lexer/lexer.hh # adding hh files is optionnal
   src/lexer/lexer.cc
 )
 target_include_directories(Lexer PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/lexer
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 # --- Ast Library (Header only) ---
