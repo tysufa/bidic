@@ -21,6 +21,17 @@ target_include_directories(Ast INTERFACE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ast
 )
 
+# --- Parser Library ---
+add_library(Parser STATIC
+  src/parser/parser.cc
+)
+
+target_include_directories(Parser PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/parser
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/lexer
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/ast
+)
+
 # --- Main Executable ---
 add_executable(Bidic src/main.cpp)
 target_link_libraries(Bidic PRIVATE Lexer Ast)
@@ -51,16 +62,17 @@ target_link_libraries(
 add_executable(LexerTests
   tests/lexer/TestLexer.cpp
 )
-add_executable(ParserTest
+add_executable(ParserTests
   tests/parser/TestParser.cpp
 )
 
 target_link_libraries(LexerTests GTest::gtest_main Lexer)
 
-target_link_libraries(ParserTest PRIVATE Lexer Ast)
+target_link_libraries(ParserTests GTest::gtest_main Lexer Ast Parser)
 
 include(GoogleTest)
 gtest_discover_tests(LexerTests)
+gtest_discover_tests(ParserTests)
 
 
 # Optional: Add as a test target

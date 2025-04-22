@@ -5,10 +5,10 @@
 #include <gtest/gtest.h>
 
 TEST(LexerTest, BasicIntDeclaration){
-  std::string input = "int test = 34; ;";
+  std::string input = "int test = 34;";
   Lexer lexer(input);
   std::vector<Token> tokens = lexer.Tokens();
-  ASSERT_GE(tokens.size(), 5);
+  ASSERT_EQ(tokens.size(), 5);
   EXPECT_EQ(lexer.input(), input);
   EXPECT_EQ(tokens[0].type, TokenType::kInt);
   EXPECT_EQ(tokens[1].type, TokenType::kVariable);
@@ -27,11 +27,12 @@ TEST(LexerTest, BasicProgramTest){
   std::vector<Token> tokens = lexer.Tokens();
   std::vector<TokenType> expected_tokens = {
       TokenType::kInt, TokenType::kMain, TokenType::kLeftParenthesis,
-      TokenType::kRightParenthesis, TokenType::kReturn, TokenType::kNumber,
-      TokenType::kSemiColon, TokenType::kRightBracket
+      TokenType::kRightParenthesis, TokenType::kLeftBracket, TokenType::kReturn,
+      TokenType::kNumber, TokenType::kSemiColon, TokenType::kRightBracket
   };
   ASSERT_EQ(tokens.size(), expected_tokens.size());
   for (int i = 0; i < tokens.size(); i++){
-    EXPECT_EQ(tokens[i].type, expected_tokens[i]);
+    EXPECT_EQ(tokens[i].type, expected_tokens[i]) << "tokens[" << i 
+      << "].value = " << tokens[i].value;
   }
 }

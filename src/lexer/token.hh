@@ -23,11 +23,6 @@ inline std::unordered_map<std::string, TokenType> Keywords = {
     {"int", TokenType::kInt},
     {"return", TokenType::kReturn},
     {"main", TokenType::kMain},
-    {"(", TokenType::kLeftParenthesis},
-    {")", TokenType::kRightParenthesis},
-    {"{", TokenType::kLeftBracket},
-    {"}", TokenType::kRightBracket},
-    {";", TokenType::kSemiColon},
 };
 
 struct Token{

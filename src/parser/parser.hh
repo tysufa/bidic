@@ -1,12 +1,14 @@
 #pragma once
 #include <vector>
 #include "token.hh"
+#include "ast.hh"
 
 class Parser{
     public:
-        Parser()=default;
+        Parser(const std::vector<Token>& tokens)
+            :_tokens(tokens){}
 
-        void ParseProgram();
+        Program ParseProgram();
         void ParseStatement();
         void ConsumeToken();
         int ExpectToken(const Token& tok);

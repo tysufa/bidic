@@ -1,7 +1,8 @@
 #include "parser.hh"
 
-void Parser::ParseProgram(){
-
+Program Parser::ParseProgram(){
+    Program p;
+    return p;
 }
 
 void Parser::ParseStatement(){

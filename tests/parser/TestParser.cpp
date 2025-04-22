@@ -1,38 +1,33 @@
-#include "../../src/lexer/lexer.hh"
-#include "../../src/ast/ast.hh"
+#include "lexer.hh"
+#include "token.hh"
+#include "parser.hh"
+#include "ast.hh"
 #include <iostream>
 #include <string>
+#include <gtest/gtest.h>
 
-// Simple test macro
-#define TEST(condition) \
-    if (!(condition)) { \
-        std::cerr << "FAIL: " << #condition << " (line " << __LINE__ << ")\n"; \
-        success = false; \
-    } else { \
-        std::cout << "PASS: " << #condition << "\n"; \
-    }
-
-void runLexerTests(){
-    bool success = true;
-    // Test 1 : input
-    {
-        std::string input = R"(int main(){
-            return 1;
-        })";
-        Lexer lexer(input);
-        std::vector<Token> tokens = lexer.Tokens();
-        Program p;
-        Declaration d;
-    }
-
-    if (!success) {
-        std::cerr << "\n⚠️  Some tests failed!\n";
-        exit(1);
-    }
-    std::cout << "\n✅ All tests passed!\n";
+TEST(ParserTest, BasicIntDeclaration){
+  std::string input = "int test = 34;";
+  Lexer lexer(input);
+  std::vector<Token> tokens = lexer.Tokens();
+  Parser parser(tokens);
+  Program p = parser.ParseProgram();
+  ASSERT_EQ(p.instructions().size(), 1);
 }
 
-int main() {
-    runLexerTests();
-    return 0;
-}
+// TEST(ParserTest, BasicProgramTest){
+//   std::string input = R"(int main(){
+//       return 0;
+//     })";
+//   Lexer lexer(input);
+//   std::vector<Token> tokens = lexer.Tokens();
+//   std::vector<TokenType> expected_tokens = {
+//       TokenType::kInt, TokenType::kMain, TokenType::kLeftParenthesis,
+//       TokenType::kRightParenthesis, TokenType::kReturn, TokenType::kNumber,
+//       TokenType::kSemiColon, TokenType::kRightBracket
+//   };
+//   ASSERT_EQ(tokens.size(), expected_tokens.size());
+//   for (int i = 0; i < tokens.size(); i++){
+//     EXPECT_EQ(tokens[i].type, expected_tokens[i]);
+//   }
+// }

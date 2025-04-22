@@ -4,6 +4,15 @@
 #include <memory>
 #include <string>
 
+// any element executable code : Statement, Declaration, Expression, etc...
+class Instruction{
+    public:
+        Instruction()=default;
+
+    private:
+
+};
+
 // executable units : if, while, return
 class Statement{
     public:
@@ -43,9 +52,11 @@ class Expression{
 class Program{
     public:
         Program()=default;
+
+        const std::vector<std::unique_ptr<Instruction>>& instructions() {return _instructions;}
     
     private:
-        std::vector<std::unique_ptr<Statement>> _statements;
+        std::vector<std::unique_ptr<Instruction>> _instructions;
 };
 
 class ReturnStatement : public Statement{

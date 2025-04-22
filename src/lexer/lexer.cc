@@ -57,6 +57,18 @@ std::vector<Token> Lexer::Tokens(){
       case ';':
         NewToken(TokenType::kSemiColon, s, tokens);
         break;
+      case '(':
+        NewToken(TokenType::kLeftParenthesis, s, tokens);
+        break;
+      case ')':
+        NewToken(TokenType::kRightParenthesis, s, tokens);
+        break;
+      case '{':
+        NewToken(TokenType::kLeftBracket, s, tokens);
+        break;
+      case '}':
+        NewToken(TokenType::kRightBracket, s, tokens);
+        break;
       default:
         if (IsLetter(_current_ch)){
           while (IsAlphaNum(_current_ch)){
@@ -80,6 +92,7 @@ std::vector<Token> Lexer::Tokens(){
           tokens.push_back(current_token);
         } else {
           NewToken(TokenType::kIllegal, s, tokens);
+          throw std::invalid_argument("illegal character received : "+s);
         }
         break;
     }
