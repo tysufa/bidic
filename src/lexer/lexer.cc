@@ -2,101 +2,89 @@
 #include "matchit.h"
 
 #include "iostream"
+#include "token.hh"
 
 bool Lexer::IsAlphaNum(char ch){
-    return (('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ('0' <= ch && ch <= '9'));
+  return (('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ('0' <= ch && ch <= '9'));
 }
 
-void Lexer::NextChar(int & i){
-    i++;
-    _current_ch = _next_ch;
-    if (i+1 < _input.size()){
-        _next_ch = _input[i+1];
-    } else {
-        _next_ch = 0;
-    }
+void Lexer::NextChar(){
+  _position++;
+  _current_ch = _next_ch;
+  if (_position+1 < _input.size())
+    _next_ch = _input[_position+1];
+  else 
+    _next_ch = 0;
+}
+
+void Lexer::NewToken(TokenType type, const std::string& value,
+                     std::vector<Token>& tokens){
+  Token current_token = {.type = type, .value = value};
+  tokens.push_back(current_token);
+  NextChar();
+}
+
+void Lexer::SkipWhitespace(){
+  while(_current_ch == ' ' || _current_ch == '\n' || _current_ch == '\t'){
+    NextChar();
+  }
 }
 
 std::vector<Token> Lexer::Tokens(){
-    std::vector<Token> tokens;
+  std::vector<Token> tokens;
 
-    Token current_token = {.type = TokenType::kVariable, .value = ""};
-    // if input is empty, initialize current_ch at 0
-    _current_ch = (0 < _input.size()) ? _input[0] : 0;
-    // if there is less than 2 characters, initialize next_ch at 0
-    _next_ch = (1 < _input.size()) ? _input[1] : 0;
+  Token current_token = {.type = TokenType::kVariable, .value = ""};
 
-    std::string s;
-    s = '=';
-    int i = 0;
-    while (i < _input.size()) {
-        // when keywords are single characters we need a string
-        s = _current_ch;
+  std::string s;
+  // initialisation of _current_ch and _next_ch and put _position at 0;
+  _position = -2;
+  NextChar();
+  NextChar();
 
-        if (Keywords.contains(s)){
-            current_token.value = s;
+  bool run = true;
+  while (_position < _input.size() && run) {
+
+    SkipWhitespace();
+
+    // when keywords are single characters we need a string
+    s = _current_ch;
+
+    current_token.value = "";
+    switch (_current_ch){
+      case '=':
+        NewToken(TokenType::kEqual, s, tokens);
+        break;
+      case ';':
+        NewToken(TokenType::kSemiColon, s, tokens);
+        break;
+      default:
+        if (IsLetter(_current_ch)){
+          while (IsAlphaNum(_current_ch)){
+            current_token.value += _current_ch;
+            NextChar();
+          }
+          if (Keywords.contains(current_token.value)){
             current_token.type = Keywords[current_token.value];
             tokens.push_back(current_token);
-            current_token.value = "";
-            NextChar(i);
-        } else if (('a' <= _current_ch && _current_ch <= 'z') || ('A' <= _current_ch && _current_ch <= 'Z')){
-            current_token.value += _current_ch;
-            NextChar(i);
-            while (IsAlphaNum(_current_ch)){
-                current_token.value += _current_ch;
-                NextChar(i);
-            }
-
-            if (Keywords.contains(current_token.value)){
-                current_token.type = Keywords[current_token.value];
-                tokens.push_back(current_token);
-                current_token.value = "";
-            } else {
-                current_token.type = TokenType::kVariable;
-                tokens.push_back(current_token);
-                current_token.value = "";
-            }
-        } else if (' ' == _current_ch || '\n' == _current_ch || '\r' == _current_ch){
-            NextChar(i);
-        } else if ('0' <= _current_ch && _current_ch <= '9'){
-            current_token.value += _current_ch;
-            NextChar(i);
-            while ('0' <= _current_ch && _current_ch <= '9'){
-                current_token.value += _current_ch;
-                NextChar(i);
-            }
-
-            current_token.type = TokenType::kNumber;
+          } else {
+            current_token.type = TokenType::kVariable;
             tokens.push_back(current_token);
-            current_token.value = "";
-        } else if (_current_ch = 0){
-            break;
-        }else {
-            std::cout << "_current_ch = " << _current_ch << std::endl;
-            NextChar(i);
+          }
+
+        } else if (IsDigit(_current_ch)){
+          while (IsDigit(_current_ch)){
+            current_token.value += _current_ch;
+            NextChar();
+          }
+          current_token.type = TokenType::kNumber;
+          tokens.push_back(current_token);
+        } else {
+          NewToken(TokenType::kIllegal, s, tokens);
         }
-
-
-        // switch (current_ch)
-        // {
-        // case ' ':
-        //     if (Keywords.contains(current_token.value)){
-        //         current_token.type = Keywords[current_token.value];
-        //         tokens.push_back(current_token);
-        //         current_token.value = "";
-        //     } else {
-        //         current_token.type = TokenType::kVariable;
-        //         tokens.push_back(current_token);
-        //         current_token.value = "";
-        //     }
-        //     break;
-
-        // default:
-        //     current_token.value += _input[i];
-        //     break;
-        // }
+        break;
     }
+  }
 
 
-    return tokens;
+  return tokens;
 }

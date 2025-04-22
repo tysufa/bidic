@@ -1,41 +1,37 @@
-#include "../../src/lexer/lexer.hh"
+#include "lexer.hh"
+#include "token.hh"
 #include <iostream>
 #include <string>
+#include <gtest/gtest.h>
 
-// Simple test macro
-#define TEST(condition) \
-    if (!(condition)) { \
-        std::cerr << "FAIL: " << #condition << " (line " << __LINE__ << ")\n"; \
-        success = false; \
-    } else { \
-        std::cout << "PASS: " << #condition << "\n"; \
-    }
-
-void runLexerTests(){
-    bool success = true;
-    // Test 1 : input
-    {
-        std::string input = "int test = 34;";
-        Lexer lexer(input);
-        std::vector<Token> tokens = lexer.Tokens();
-        TEST(lexer.input() == input);
-        TEST(tokens[0].type == TokenType::kInt);
-        TEST(tokens[1].type == TokenType::kVariable);
-        TEST(tokens[1].value == "test");
-        TEST(tokens[2].type == TokenType::kEqual);
-        TEST(tokens[3].type == TokenType::kNumber);
-        TEST(tokens[3].value == "34");
-        TEST(tokens[4].type == TokenType::kSemiColon);
-    }
-
-    if (!success) {
-        std::cerr << "\n⚠️  Some tests failed!\n";
-        exit(1);
-    }
-    std::cout << "\n✅ All tests passed!\n";
+TEST(LexerTest, BasicIntDeclaration){
+  std::string input = "int test = 34; ;";
+  Lexer lexer(input);
+  std::vector<Token> tokens = lexer.Tokens();
+  ASSERT_GE(tokens.size(), 5);
+  EXPECT_EQ(lexer.input(), input);
+  EXPECT_EQ(tokens[0].type, TokenType::kInt);
+  EXPECT_EQ(tokens[1].type, TokenType::kVariable);
+  EXPECT_EQ(tokens[1].value, "test");
+  EXPECT_EQ(tokens[2].type, TokenType::kEqual);
+  EXPECT_EQ(tokens[3].type, TokenType::kNumber);
+  EXPECT_EQ(tokens[3].value, "34");
+  EXPECT_EQ(tokens[4].type, TokenType::kSemiColon);
 }
 
-int main() {
-    runLexerTests();
-    return 0;
+TEST(LexerTest, BasicProgramTest){
+  std::string input = R"(int main(){
+      return 0;
+    })";
+  Lexer lexer(input);
+  std::vector<Token> tokens = lexer.Tokens();
+  std::vector<TokenType> expected_tokens = {
+      TokenType::kInt, TokenType::kMain, TokenType::kLeftParenthesis,
+      TokenType::kRightParenthesis, TokenType::kReturn, TokenType::kNumber,
+      TokenType::kSemiColon, TokenType::kRightBracket
+  };
+  ASSERT_EQ(tokens.size(), expected_tokens.size());
+  for (int i = 0; i < tokens.size(); i++){
+    EXPECT_EQ(tokens[i].type, expected_tokens[i]);
+  }
 }
