@@ -43,10 +43,9 @@ add_executable(
 target_link_libraries(
   hello_test
   GTest::gtest_main
+  Lexer
 )
 
-include(GoogleTest)
-gtest_discover_tests(hello_test)
 
 # --- Manual Test Executable ---
 add_executable(LexerTests
@@ -56,11 +55,14 @@ add_executable(ParserTest
   tests/parser/TestParser.cpp
 )
 
-target_link_libraries(LexerTests PRIVATE Lexer)
+target_link_libraries(LexerTests GTest::gtest_main Lexer)
 
 target_link_libraries(ParserTest PRIVATE Lexer Ast)
 
+include(GoogleTest)
+gtest_discover_tests(LexerTests)
+
+
 # Optional: Add as a test target
-enable_testing()
-add_test(NAME LexerTests COMMAND LexerTests)
-add_test(NAME ParserTest COMMAND ParserTest)
+# add_test(NAME LexerTests COMMAND LexerTests)
+# add_test(NAME ParserTest COMMAND ParserTest)

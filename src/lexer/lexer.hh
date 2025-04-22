@@ -17,12 +17,19 @@ public:
 
 private:
     bool IsAlphaNum(char ch);
+    bool IsLetter(char ch){
+      return ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z');
+    }
+    bool IsDigit(char ch){ return ('0' <= ch && ch <= '9'); }
 
     /// @brief update _current_ch and _next_ch
-    void NextChar(int & i);
+    void NextChar();
+    void NewToken(TokenType type, const std::string& value, std::vector<Token>& tokens);
+    void SkipWhitespace();
 
 private:
     std::string _input;
     char _current_ch;
     char _next_ch;
+    int _position;
 };

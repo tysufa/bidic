@@ -10,11 +10,23 @@ enum class TokenType{
     kEqual,
     kSemiColon,
     kNumber,
+    kReturn,
+    kLeftParenthesis,
+    kRightParenthesis,
+    kRightBracket,
+    kLeftBracket,
+    kMain,
+    kIllegal,
 };
 
 inline std::unordered_map<std::string, TokenType> Keywords = {
     {"int", TokenType::kInt},
-    {"=", TokenType::kEqual},
+    {"return", TokenType::kReturn},
+    {"main", TokenType::kMain},
+    {"(", TokenType::kLeftParenthesis},
+    {")", TokenType::kRightParenthesis},
+    {"{", TokenType::kLeftBracket},
+    {"}", TokenType::kRightBracket},
     {";", TokenType::kSemiColon},
 };
 
