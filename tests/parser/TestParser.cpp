@@ -23,6 +23,7 @@ TEST(ParserTest, BasicIntDeclaration){
   EXPECT_NE(pDeclaration, nullptr) << "Expected non-null Declaration pointer";
   if (pDeclaration){
     EXPECT_EQ(pDeclaration->identifier()->name(), "test");
+    EXPECT_EQ(pDeclaration->type(), Type::kInt);
   }
 }
 

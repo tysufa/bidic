@@ -12,17 +12,33 @@ void Parser::ParseProgram(){
 
     switch (_current_token.type){
         case TokenType::kInt:
-            ParseDeclaration();
+            ParseDeclaration(Type::kInt);
             break;
     }
 
 }
 
-void Parser::ParseDeclaration(){
+void Parser::ParseDeclaration(Type declaration_type){
   ExpectToken(TokenType::kIdentifier);
 
   auto ident = std::make_unique<Identifier>(_current_token.value);
-  auto instr = std::make_unique<Declaration>(std::move(ident));
+  auto instr = std::make_unique<Declaration>(std::move(ident), declaration_type);
+
+  if (_next_token.type == TokenType::kEqual){
+    ConsumeToken();
+    switch (declaration_type){
+        case Type::kInt:
+            ExpectToken(TokenType::kNumber);
+            ExpectToken(TokenType::kSemiColon);
+            break;
+        default:
+            break;
+    }
+  } else if (_next_token.type == TokenType::kLeftParenthesis){
+
+  } else{
+    ExpectToken(TokenType::kSemiColon);
+  }
 
   _program.add_instruction(std::move(instr));
 }

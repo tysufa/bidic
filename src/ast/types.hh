@@ -2,4 +2,7 @@
 
 enum class Type{
     kInt,
+    KBool,
+    kFloat,
+    kChar,
 };

@@ -14,7 +14,7 @@ class Parser{
 
     private:
         void ParseStatement();
-        void ParseDeclaration();
+        void ParseDeclaration(Type declaration_type);
         void ConsumeToken();
         void ExpectToken(const TokenType& tok);
 

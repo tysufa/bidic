@@ -33,20 +33,6 @@ class Identifier{
         std::string _name;
 };
 
-// identifiers with their type and storage
-class Declaration : public Instruction{
-    public:
-        Declaration(std::unique_ptr<Identifier> ident)
-            :_identifier(std::move(ident)){}
-
-        std::string TypeInstruction() const {return "Declaration";};
-        const std::unique_ptr<Identifier>& identifier() const {return _identifier;}
-    
-    private:
-        Type _type;
-        std::unique_ptr<Identifier> _identifier;
-};
-
 // combination of variables, constants, operators and function calls that evaluate to a single value
 class Expression{
     public:
@@ -54,6 +40,21 @@ class Expression{
 
     private:
         int _value;
+};
+
+// identifiers with their type and storage
+class Declaration : public Instruction{
+    public:
+        Declaration(std::unique_ptr<Identifier> ident, Type type)
+            :_identifier(std::move(ident)), _type(type){}
+
+        std::string TypeInstruction() const override {return "Declaration";};
+        const std::unique_ptr<Identifier>& identifier() const {return _identifier;}
+        Type type() const {return _type;}
+    
+    private:
+        Type _type;
+        std::unique_ptr<Identifier> _identifier;
 };
 
 class Program{
