@@ -1,4 +1,7 @@
 #include "parser.hh"
+#include "ast.hh"
+#include "token.hh"
+#include <memory>
 #include <stdexcept>
 
 
@@ -14,17 +17,29 @@ void Parser::ParseProgram(){
         case TokenType::kInt:
             ParseDeclaration(Type::kInt);
             break;
+        default:
+            break;
     }
 
 }
+
+std::unique_ptr<FunctionDeclaration> Parser::ParseFunctionDeclaration(Type declaration_type, std::unique_ptr<Identifier> ident){
+  auto function = std::make_unique<FunctionDeclaration>(std::move(ident), declaration_type);
+  ExpectToken(TokenType::kLeftParenthesis);
+  ExpectToken(TokenType::kRightParenthesis);
+
+  return function;
+}
+
 
 void Parser::ParseDeclaration(Type declaration_type){
   ExpectToken(TokenType::kIdentifier);
 
   auto ident = std::make_unique<Identifier>(_current_token.value);
-  auto instr = std::make_unique<Declaration>(std::move(ident), declaration_type);
+  std::unique_ptr<Declaration> instr;
 
   if (_next_token.type == TokenType::kEqual){
+    instr = std::make_unique<Declaration>(std::move(ident), declaration_type);
     ConsumeToken();
     switch (declaration_type){
         case Type::kInt:
@@ -35,13 +50,14 @@ void Parser::ParseDeclaration(Type declaration_type){
             break;
     }
   } else if (_next_token.type == TokenType::kLeftParenthesis){
-
+        instr = ParseFunctionDeclaration(declaration_type, std::move(ident));
   } else{
     ExpectToken(TokenType::kSemiColon);
   }
 
   _program.add_instruction(std::move(instr));
 }
+
 
 void Parser::ParseStatement(){
 

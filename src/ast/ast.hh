@@ -61,8 +61,12 @@ class Program{
     public:
         Program()=default;
 
-        const std::vector<std::unique_ptr<Instruction>>& instructions() const {return _instructions;}
-        void add_instruction(std::unique_ptr<Instruction> instruction) {_instructions.push_back(std::move(instruction));}
+        const std::vector<std::unique_ptr<Instruction>>& instructions() const {
+            return _instructions;
+        }
+        void add_instruction(std::unique_ptr<Instruction> instruction) {
+            _instructions.push_back(std::move(instruction));
+        }
     
     private:
         std::vector<std::unique_ptr<Instruction>> _instructions;
@@ -76,10 +80,13 @@ class ReturnStatement : public Statement{
         std::unique_ptr<Expression> _return_value;
 };
 
-class FunctionDefinition : public Declaration{
+class FunctionDeclaration : public Declaration{
     public:
-        FunctionDefinition()=default;
+        FunctionDeclaration(std::unique_ptr<Identifier> ident, Type type)
+            :Declaration(std::move(ident), type){}
+
+        std::string TypeInstruction() const override {return "FunctionDeclaration";};
 
     private:
-
+        std::vector<std::unique_ptr<Instruction>> _instructions;
 };

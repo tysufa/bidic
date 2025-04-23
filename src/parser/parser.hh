@@ -15,6 +15,7 @@ class Parser{
     private:
         void ParseStatement();
         void ParseDeclaration(Type declaration_type);
+        std::unique_ptr<FunctionDeclaration> ParseFunctionDeclaration(Type declaration_type, std::unique_ptr<Identifier> ident);
         void ConsumeToken();
         void ExpectToken(const TokenType& tok);
 
