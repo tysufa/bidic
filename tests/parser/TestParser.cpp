@@ -11,8 +11,19 @@ TEST(ParserTest, BasicIntDeclaration){
   Lexer lexer(input);
   std::vector<Token> tokens = lexer.Tokens();
   Parser parser(tokens);
-  Program p = parser.ParseProgram();
-  ASSERT_EQ(p.instructions().size(), 1);
+  parser.ParseProgram();
+  const Program& p = parser.program();
+
+  const std::vector<std::unique_ptr<Instruction>>& instructions = p.instructions();
+
+  ASSERT_EQ(instructions.size(), 1);
+
+  auto pDeclaration = dynamic_cast<Declaration const*>(instructions[0].get());
+  EXPECT_EQ(instructions[0]->TypeInstruction(), "Declaration");
+  EXPECT_NE(pDeclaration, nullptr) << "Expected non-null Declaration pointer";
+  if (pDeclaration){
+    EXPECT_EQ(pDeclaration->identifier()->name(), "test");
+  }
 }
 
 // TEST(ParserTest, BasicProgramTest){

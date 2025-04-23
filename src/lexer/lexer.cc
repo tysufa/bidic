@@ -4,7 +4,7 @@
 #include "iostream"
 #include "token.hh"
 
-bool Lexer::IsAlphaNum(char ch){
+bool Lexer::IsAlphaNum(char ch) const {
   return (('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ('0' <= ch && ch <= '9'));
 }
 
@@ -33,7 +33,7 @@ void Lexer::SkipWhitespace(){
 std::vector<Token> Lexer::Tokens(){
   std::vector<Token> tokens;
 
-  Token current_token = {.type = TokenType::kVariable, .value = ""};
+  Token current_token = {.type = TokenType::kIdentifier, .value = ""};
 
   std::string s;
   // initialisation of _current_ch and _next_ch and put _position at 0;
@@ -79,7 +79,7 @@ std::vector<Token> Lexer::Tokens(){
             current_token.type = Keywords[current_token.value];
             tokens.push_back(current_token);
           } else {
-            current_token.type = TokenType::kVariable;
+            current_token.type = TokenType::kIdentifier;
             tokens.push_back(current_token);
           }
 

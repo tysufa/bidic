@@ -7,7 +7,7 @@
 // any element executable code : Statement, Declaration, Expression, etc...
 class Instruction{
     public:
-        Instruction()=default;
+        virtual std::string TypeInstruction() const =0;
 
     private:
 
@@ -24,16 +24,23 @@ class Statement{
 
 class Identifier{
     public:
-        Identifier()=default;
+        Identifier(const std::string& name)
+            :_name(name){}
+        
+        const std::string& name() const {return _name;}
 
     private:
         std::string _name;
 };
 
 // identifiers with their type and storage
-class Declaration{
+class Declaration : public Instruction{
     public:
-        Declaration()=default;
+        Declaration(std::unique_ptr<Identifier> ident)
+            :_identifier(std::move(ident)){}
+
+        std::string TypeInstruction() const {return "Declaration";};
+        const std::unique_ptr<Identifier>& identifier() const {return _identifier;}
     
     private:
         Type _type;
@@ -53,7 +60,8 @@ class Program{
     public:
         Program()=default;
 
-        const std::vector<std::unique_ptr<Instruction>>& instructions() {return _instructions;}
+        const std::vector<std::unique_ptr<Instruction>>& instructions() const {return _instructions;}
+        void add_instruction(std::unique_ptr<Instruction> instruction) {_instructions.push_back(std::move(instruction));}
     
     private:
         std::vector<std::unique_ptr<Instruction>> _instructions;

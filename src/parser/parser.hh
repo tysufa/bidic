@@ -8,13 +8,20 @@ class Parser{
         Parser(const std::vector<Token>& tokens)
             :_tokens(tokens){}
 
-        Program ParseProgram();
-        void ParseStatement();
-        void ConsumeToken();
-        int ExpectToken(const Token& tok);
+        void ParseProgram();
+
+        const Program& program() const {return _program;};
 
     private:
+        void ParseStatement();
+        void ParseDeclaration();
+        void ConsumeToken();
+        void ExpectToken(const TokenType& tok);
+
+    private:
+        int _current_token_index;
         Token _current_token;
         Token _next_token;
         std::vector<Token> _tokens;
+        Program _program;
 };

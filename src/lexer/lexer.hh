@@ -16,11 +16,11 @@ public:
     std::vector<Token> Tokens();
 
 private:
-    bool IsAlphaNum(char ch);
-    bool IsLetter(char ch){
+    bool IsAlphaNum(char ch) const;
+    bool IsLetter(char ch) const{
       return ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z');
     }
-    bool IsDigit(char ch){ return ('0' <= ch && ch <= '9'); }
+    bool IsDigit(char ch) const { return ('0' <= ch && ch <= '9'); }
 
     /// @brief update _current_ch and _next_ch
     void NextChar();

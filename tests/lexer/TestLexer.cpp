@@ -11,7 +11,7 @@ TEST(LexerTest, BasicIntDeclaration){
   ASSERT_EQ(tokens.size(), 5);
   EXPECT_EQ(lexer.input(), input);
   EXPECT_EQ(tokens[0].type, TokenType::kInt);
-  EXPECT_EQ(tokens[1].type, TokenType::kVariable);
+  EXPECT_EQ(tokens[1].type, TokenType::kIdentifier);
   EXPECT_EQ(tokens[1].value, "test");
   EXPECT_EQ(tokens[2].type, TokenType::kEqual);
   EXPECT_EQ(tokens[3].type, TokenType::kNumber);
@@ -33,6 +33,8 @@ TEST(LexerTest, BasicProgramTest){
   ASSERT_EQ(tokens.size(), expected_tokens.size());
   for (int i = 0; i < tokens.size(); i++){
     EXPECT_EQ(tokens[i].type, expected_tokens[i]) << "tokens[" << i 
-      << "].value = " << tokens[i].value;
+        << "].value = " << tokens[i].value << "\nexpected " <<
+        StringTokenType(tokens[i].type) << " got " <<
+        StringTokenType(expected_tokens[i]) << "instead\n";
   }
 }
