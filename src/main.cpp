@@ -1,5 +1,5 @@
-#include <iostream>
 #include "lexer.hh"
+#include <iostream>
 
 /// @brief Applies Foo's algorithm on x
 ///
@@ -8,15 +8,17 @@
 ///
 /// @param x the distilled essence of the matrix Z
 /// @returns The hypercombobulated entangled version of x
-int foobar(int x) { return x + 1; }
+int foobar(int x) {
+  return x + 1;
+}
 
-int main(){
+int main() {
 
-    Lexer tempo("int a = 3;");
+  Lexer tempo("int a = 3;");
 
-    std::cout << "hello world" << std::endl;
+  std::cout << "hello world" << std::endl;
 
-    tempo.Tokens();
+  tempo.Tokens();
 
-    return 0;
+  return 0;
 }

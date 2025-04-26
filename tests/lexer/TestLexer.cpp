@@ -4,7 +4,7 @@
 #include <string>
 #include <gtest/gtest.h>
 
-TEST(LexerTest, BasicIntDeclaration){
+TEST(LexerTest, BasicIntDeclaration) {
   std::string input = "int test = 34;";
   Lexer lexer(input);
   std::vector<Token> tokens = lexer.Tokens();
@@ -19,22 +19,22 @@ TEST(LexerTest, BasicIntDeclaration){
   EXPECT_EQ(tokens[4].type, TokenType::kSemiColon);
 }
 
-TEST(LexerTest, BasicProgramTest){
+TEST(LexerTest, BasicProgramTest) {
   std::string input = R"(int main(){
       return 0;
     })";
   Lexer lexer(input);
   std::vector<Token> tokens = lexer.Tokens();
   std::vector<TokenType> expected_tokens = {
-      TokenType::kInt, TokenType::kMain, TokenType::kLeftParenthesis,
-      TokenType::kRightParenthesis, TokenType::kLeftBracket, TokenType::kReturn,
-      TokenType::kNumber, TokenType::kSemiColon, TokenType::kRightBracket
+    TokenType::kInt, TokenType::kMain, TokenType::kLeftParenthesis,
+    TokenType::kRightParenthesis, TokenType::kLeftBracket, TokenType::kReturn,
+    TokenType::kNumber, TokenType::kSemiColon, TokenType::kRightBracket
   };
   ASSERT_EQ(tokens.size(), expected_tokens.size());
-  for (int i = 0; i < tokens.size(); i++){
-    EXPECT_EQ(tokens[i].type, expected_tokens[i]) << "tokens[" << i 
-        << "].value = " << tokens[i].value << "\nexpected " <<
-        StringTokenType(tokens[i].type) << " got " <<
-        StringTokenType(expected_tokens[i]) << "instead\n";
+  for (int i = 0; i < tokens.size(); i++) {
+    EXPECT_EQ(tokens[i].type, expected_tokens[i]) << "tokens[" << i
+      << "].value = " << tokens[i].value << "\nexpected " <<
+      StringTokenType(tokens[i].type) << " got " <<
+      StringTokenType(expected_tokens[i]) << "instead\n";
   }
 }
