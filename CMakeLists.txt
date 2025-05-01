@@ -21,6 +21,25 @@ target_include_directories(Ast INTERFACE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ast
 )
 
+
+# --- Nast Library (Header only) ---
+add_library(Nast INTERFACE)
+
+target_include_directories(Nast INTERFACE
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/nast
+)
+
+# --- Nast Library (Header only) ---
+add_library(Ast_parser STATIC
+  src/ast_parser/ast_parser.cc  
+)
+
+target_include_directories(Ast_parser PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/ast_parser
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/nast
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/ast
+)
+
 # --- Parser Library ---
 add_library(Parser STATIC
   src/parser/parser.cc
@@ -47,17 +66,6 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-add_executable(
-  hello_test
-  tests/hello_test.cc
-)
-target_link_libraries(
-  hello_test
-  GTest::gtest_main
-  Lexer
-)
-
-
 # --- Manual Test Executable ---
 add_executable(LexerTests
   tests/lexer/TestLexer.cpp
@@ -65,14 +73,21 @@ add_executable(LexerTests
 add_executable(ParserTests
   tests/parser/TestParser.cpp
 )
+add_executable(AstParserTests
+  tests/ast_parser/test_ast_parser.cpp
+)
 
 target_link_libraries(LexerTests GTest::gtest_main Lexer)
 
 target_link_libraries(ParserTests GTest::gtest_main Lexer Ast Parser)
 
+target_link_libraries(AstParserTests GTest::gtest_main Lexer Ast Parser Nast
+  Ast_parser)
+
 include(GoogleTest)
 gtest_discover_tests(LexerTests)
 gtest_discover_tests(ParserTests)
+gtest_discover_tests(AstParserTests)
 
 
 # Optional: Add as a test target

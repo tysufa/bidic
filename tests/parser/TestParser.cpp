@@ -3,6 +3,7 @@
 #include "parser.hh"
 #include "ast.hh"
 #include <iostream>
+#include <memory>
 #include <string>
 #include <gtest/gtest.h>
 
@@ -11,10 +12,9 @@ TEST(ParserTest, BasicIntDeclaration) {
   Lexer lexer(input);
   std::vector<Token> tokens = lexer.Tokens();
   Parser parser(tokens);
-  parser.ParseProgram();
-  const Program& p = parser.program();
+  std::unique_ptr<Program> p = parser.ParseProgram();
 
-  const std::vector<std::unique_ptr<Instruction>>& instructions = p.instructions();
+  const std::vector<std::unique_ptr<Instruction>>& instructions = p->instructions();
 
   ASSERT_EQ(instructions.size(), 1);
 
@@ -38,10 +38,9 @@ TEST(ParserTest, BasicProgramTest) {
   std::vector<Token> tokens = lexer.Tokens();
 
   Parser parser(tokens);
-  parser.ParseProgram();
-  const Program& p = parser.program();
+  std::unique_ptr<Program> p = parser.ParseProgram();
 
-  const std::vector<std::unique_ptr<Instruction>>& instructions = p.instructions();
+  const std::vector<std::unique_ptr<Instruction>>& instructions = p->instructions();
 
   auto pDeclaration = dynamic_cast<FunctionDeclaration const*>
                       (instructions[0].get());

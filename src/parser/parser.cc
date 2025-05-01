@@ -7,15 +7,16 @@
 
 #include <iostream>
 
-void Parser::ParseProgram() {
-  Program p;
+std::unique_ptr<Program> Parser::ParseProgram() {
+  auto program = std::make_unique<Program>();
   _current_token_index = -2;
   ConsumeToken();
   ConsumeToken();
 
   std::unique_ptr<Instruction> instr = ParseInstruction();
-  _program.add_instruction(std::move(instr));
+  program->add_instruction(std::move(instr));
 
+  return program;
 }
 
 std::unique_ptr<Expression> Parser::ParseExpression() {

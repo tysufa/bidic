@@ -9,10 +9,10 @@ class Parser {
   Parser(const std::vector<Token>& tokens)
     : _tokens(tokens) {}
 
-  void ParseProgram();
+  std::unique_ptr<Program> ParseProgram();
 
-  const Program& program() const {
-    return _program;
+  std::unique_ptr<Program> program() {
+    return std::move(_program);
   };
 
  private:
@@ -34,5 +34,5 @@ class Parser {
   Token _current_token;
   Token _next_token;
   std::vector<Token> _tokens;
-  Program _program;
+  std::unique_ptr<Program> _program;
 };
