@@ -3,9 +3,9 @@
 #include <string>
 
 class Emitor {
-public:
+ public:
   Emitor() = default;
-  std::string Emit(const nast::Program &program);
+  std::string Emit(std::unique_ptr<nast::Program> program);
 
-private:
+ private:
 };

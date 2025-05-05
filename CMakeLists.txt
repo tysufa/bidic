@@ -51,6 +51,16 @@ target_include_directories(Parser PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ast
 )
 
+# --- Emitor Library ---
+add_library(Emitor STATIC
+  ./src/emission/emission.cc
+)
+
+target_include_directories(Emitor PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/nast
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/emission
+)
+
 # --- Main Executable ---
 add_executable(Bidic src/main.cpp)
 target_link_libraries(Bidic PRIVATE Lexer Ast)
@@ -76,6 +86,9 @@ add_executable(ParserTests
 add_executable(AstParserTests
   tests/ast_parser/test_ast_parser.cpp
 )
+add_executable(EmitorTests
+  tests/emitor/test_emitor.cpp
+)
 
 target_link_libraries(LexerTests GTest::gtest_main Lexer)
 
@@ -84,10 +97,14 @@ target_link_libraries(ParserTests GTest::gtest_main Lexer Ast Parser)
 target_link_libraries(AstParserTests GTest::gtest_main Lexer Ast Parser Nast
   Ast_parser)
 
+target_link_libraries(EmitorTests GTest::gtest_main Lexer Ast Parser Nast Emitor
+  Ast_parser)
+
 include(GoogleTest)
 gtest_discover_tests(LexerTests)
 gtest_discover_tests(ParserTests)
 gtest_discover_tests(AstParserTests)
+gtest_discover_tests(EmitorTests)
 
 
 # Optional: Add as a test target
