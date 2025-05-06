@@ -4,14 +4,34 @@
 #include <string>
 #include <vector>
 
-enum class Register {
-  eax,
-  ebx,
-  ecx,
-  edx,
-  ebp,
-  esp,
-};
+enum class Register { eax, ebx, ecx, edx, ebp, esp, esi, edi };
+
+inline std::string RegisterToString(Register r) {
+  static const char *names[] = {"eax", "ebx", "ecx", "edx",
+                                "esp", "ebp", "esi", "edi"};
+  return names[static_cast<int>(r)]; // 'value' is the enum's underlying integer
+}
+
+// inline std::string RegisterToString(Register r) {
+//   switch (r) {
+//   case Register::eax:
+//     return "eax";
+//   case Register::ebx:
+//     return "ebx";
+//   case Register::ecx:
+//     return "ecx";
+//   case Register::edx:
+//     return "edx";
+//   case Register::ebp:
+//     return "ebp";
+//   case Register::esp:
+//     return "esp";
+//   case Register::esi:
+//     return "esi";
+//   case Register::edi:
+//     return "edi";
+//   }
+// }
 
 namespace nast {
 using namespace nast;
@@ -80,7 +100,7 @@ public:
   std::string TypeInstruction() const override { return "MoveInstruction"; };
 
   Register get_register() const { return _register; };
-  std::string StringRegister() { return "eax"; };
+  std::string get_register_str() { return RegisterToString(_register); };
   int value() const { return _value; };
 
 private:

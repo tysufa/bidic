@@ -26,7 +26,7 @@ std::string Emitor::Emit(std::unique_ptr<nast::Program> program) {
       if (auto func_return =
               dynamic_cast<nast::Return const *>(func_instructions[i].get())) {
 
-        result += indent + "mov " + func_return->move()->StringRegister() +
+        result += indent + "mov " + func_return->move()->get_register_str() +
                   ", " + std::to_string(func_return->move()->value()) + "\n";
 
         result += indent + "ret\n";
