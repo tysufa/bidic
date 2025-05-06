@@ -1,106 +1,103 @@
 #pragma once
 
-#include <string>
 #include <memory>
+#include <string>
 #include <vector>
 
-enum class Register { eax, ebx, ecx, edx, ebp, esp, };
+enum class Register {
+  eax,
+  ebx,
+  ecx,
+  edx,
+  ebp,
+  esp,
+};
 
 namespace nast {
 using namespace nast;
 
 class Instruction {
- public:
+public:
   virtual std::string TypeInstruction() const = 0;
 
- private:
-
+private:
 };
 
 class Program {
- public:
+public:
   Program() = default;
 
-  const std::vector<std::unique_ptr<Instruction>>& instructions() const {
+  const std::vector<std::unique_ptr<Instruction>> &instructions() const {
     return _instructions;
   }
   void add_instruction(std::unique_ptr<nast::Instruction> instruction) {
     _instructions.push_back(std::move(instruction));
   }
 
- private:
+private:
   std::vector<std::unique_ptr<Instruction>> _instructions;
 };
 
 class Identifier {
- public:
-  Identifier(const std::string& name)
-    : _name(name) {}
+public:
+  Identifier(const std::string &name) : _name(name) {}
 
-  const std::string& name() const {
-    return _name;
-  }
+  const std::string &name() const { return _name; }
 
- private:
+private:
   std::string _name;
 };
 
 class FunctionDeclaration : public nast::Instruction {
- public:
+public:
   FunctionDeclaration(std::unique_ptr<Identifier> ident)
-    : _identifier(std::move(ident)) {}
+      : _identifier(std::move(ident)) {}
 
   std::string TypeInstruction() const override {
     return "FunctionDeclaration";
   };
 
-  const std::vector<std::unique_ptr<Instruction>>& instructions() const {
+  const std::vector<std::unique_ptr<nast::Instruction>> &instructions() const {
     return _instructions;
   }
 
-  const std::unique_ptr<Identifier>& identifier() const {
-    return _identifier;
-  }
+  const std::unique_ptr<Identifier> &identifier() const { return _identifier; }
 
   void add_instruction(std::unique_ptr<Instruction> instruction) {
     _instructions.push_back(std::move(instruction));
   }
 
-
- private:
+private:
   std::vector<std::unique_ptr<Instruction>> _instructions;
   std::unique_ptr<Identifier> _identifier;
 };
 
-
-class Move : public Instruction{
- public:
+class Move : public Instruction {
+public:
   // TODO: change int value type to a general type
-  Move(Register reg, int value)
-    : _register(reg), _value(value) {}
+  Move(Register reg, int value) : _register(reg), _value(value) {}
 
-  std::string TypeInstruction() const override {return "MoveInstruction";};
+  std::string TypeInstruction() const override { return "MoveInstruction"; };
 
-  Register get_register() const {return _register;};
-  int value() const {return _value;};
+  Register get_register() const { return _register; };
+  std::string StringRegister() { return "eax"; };
+  int value() const { return _value; };
 
-
- private:
+private:
   Register _register;
   int _value;
 };
 
-class Return : public Instruction{
- public:
-  Return(std::unique_ptr<Move> mov)
-    : _move(std::move(mov)) {}
+class Return : public Instruction {
+public:
+  Return(std::unique_ptr<Move> mov) : _move(std::move(mov)) {}
 
-  std::string TypeInstruction() const override {return "ReturnInstruction";}
+  std::string TypeInstruction() const override { return "ReturnInstruction"; }
 
-  const std::unique_ptr<Move>& move() const {return _move;}
+  const std::unique_ptr<Move> &move() const { return _move; }
 
- private:
+private:
   std::unique_ptr<Move> _move;
 };
 
-}
+} // namespace nast

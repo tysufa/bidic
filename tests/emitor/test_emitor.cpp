@@ -1,13 +1,14 @@
-#include "lexer.hh"
-#include "token.hh"
-#include "parser.hh"
-#include "nast.hh"
 #include "ast_parser.hh"
+#include "emission.hh"
+#include "lexer.hh"
+#include "nast.hh"
+#include "parser.hh"
+#include "token.hh"
+#include <gtest/gtest.h>
 #include <memory>
 #include <string>
-#include <gtest/gtest.h>
 
-TEST(AstParserTest, BasicProgramTest) {
+TEST(EmitorTest, BasicProgramTest) {
   std::string input = R"(int test(){
     return 1;
     })";
@@ -16,7 +17,17 @@ TEST(AstParserTest, BasicProgramTest) {
 
   Parser parser(tokens);
 
-  std::unique_ptr<nast::Program> res;
+  std::unique_ptr<nast::Program> nast;
   // the std::move is automatic
-  res = eval(parser.ParseProgram());
+  nast = eval(parser.ParseProgram());
+
+  Emitor emitor;
+  std::string res = emitor.Emit(std::move(nast));
+
+  std::string expected_res = R"(.test
+  mov eax, 1
+  ret
+)";
+
+  EXPECT_EQ(res, expected_res);
 }
