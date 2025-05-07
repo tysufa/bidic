@@ -4,9 +4,6 @@
 #include <memory>
 #include <stdexcept>
 
-
-#include <iostream>
-
 std::unique_ptr<Program> Parser::ParseProgram() {
   auto program = std::make_unique<Program>();
   _current_token_index = -2;
