@@ -40,6 +40,11 @@ class Parser {
     else
       return 0;
   }
+  bool IsOperator(TokenType t) {
+    return t == TokenType::kPlus or t == TokenType::kMinus or
+           t == TokenType::kStar or t == TokenType::kSlash;
+  }
+
 
  private:
   int _current_token_index;

@@ -1,6 +1,7 @@
 #include "parser.hh"
 #include "ast.hh"
 #include "token.hh"
+#include <iostream>
 #include <memory>
 #include <stdexcept>
 
@@ -17,7 +18,19 @@ std::unique_ptr<Program> Parser::ParseProgram() {
 }
 
 std::unique_ptr<Expression> Parser::ParseExpression() {
-  return ParsePrefix();
+
+  std::unique_ptr<Expression> left = ParsePrefix();
+
+  while (_current_token.type != TokenType::kEof or
+         _current_token.type != TokenType::kIllegal) {
+
+    if (!IsOperator(_current_token.type))
+      return left;
+
+  }
+
+  return left;
+
   // switch (_current_token.type) {
   //   case TokenType::kNumber:
   //     return std::make_unique<IntExpression>(std::stoi(_current_token.value));
@@ -36,18 +49,34 @@ std::unique_ptr<Expression> Parser::ParsePrefix() {
 
   if (_current_token.type == TokenType::kMinus) {
     prefix_type = TokenType::kMinus;
+    std::unique_ptr<PrefixExpression> prefix;
     ConsumeToken();
-    return std::make_unique<PrefixExpression>(TokenType::kMinus,
-           std::make_unique<IntExpression>(std::stoi(_current_token.value)));
+
+    std::unique_ptr<Expression> expr = ParseExpression();
+
+    prefix = std::make_unique<PrefixExpression>(prefix_type, std::move(expr));
+
+    return prefix;
+
+    // return std::make_unique<PrefixExpression>(prefix_type,
+    //        std::make_unique<IntExpression>(std::stoi(_current_token.value)));
   } else if (_current_token.type == TokenType::kTilde) {
     prefix_type = TokenType::kTilde;
     ConsumeToken();
-  } else if (_current_token.type == TokenType::kNumber)
-    return std::make_unique<IntExpression>(std::stoi(_current_token.value));
-  else {
+  } else if (_current_token.type == TokenType::kNumber) {
+    auto res = std::make_unique<IntExpression>(std::stoi(_current_token.value));
+    return res;
+  } else if (_current_token.type == TokenType::kLeftParenthesis) {
+    ConsumeToken();
+    auto res = ParseExpression();
+    ConsumeToken();
+    return res;
+  } else {
     throw std::runtime_error("expected prefix token got " + StringTokenType(
                                  _current_token.type) + " instead");
   }
+
+  throw _current_token;
 }
 
 
