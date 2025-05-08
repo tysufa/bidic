@@ -1,4 +1,5 @@
 #pragma once
+#include "token.hh"
 #include "types.hh"
 #include <vector>
 #include <memory>
@@ -71,6 +72,28 @@ class IntExpression : public Expression {
 
  private:
   int _value;
+};
+
+class PrefixExpression : public Expression {
+ public:
+  PrefixExpression(TokenType t, std::unique_ptr<Expression> value)
+    : _prefix_type(t), _expression_value(std::move(value)) {}
+
+  std::unique_ptr<Literal> Evaluate() const override {
+    std::unique_ptr<Literal> eval = _expression_value->Evaluate();
+    auto int_eval = static_cast<const IntLiteral*>(eval.get());
+
+    // TODO: extract this logic to a .cc file and make it cleaner
+    if (int_eval)
+      return std::make_unique<IntLiteral>(-int_eval->value());
+
+    else
+      return _expression_value->Evaluate();
+  }
+
+ private:
+  TokenType _prefix_type;
+  std::unique_ptr<Expression> _expression_value;
 };
 
 

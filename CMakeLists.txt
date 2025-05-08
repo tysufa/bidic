@@ -38,6 +38,7 @@ target_include_directories(Ast_parser PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ast_parser
   ${CMAKE_CURRENT_SOURCE_DIR}/src/nast
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ast
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/lexer
 )
 
 # --- Parser Library ---

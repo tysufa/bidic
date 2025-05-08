@@ -17,16 +17,36 @@ std::unique_ptr<Program> Parser::ParseProgram() {
 }
 
 std::unique_ptr<Expression> Parser::ParseExpression() {
-  switch (_current_token.type) {
-    case TokenType::kNumber:
-      return std::make_unique<IntExpression>(std::stoi(_current_token.value));
-      break;
+  return ParsePrefix();
+  // switch (_current_token.type) {
+  //   case TokenType::kNumber:
+  //     return std::make_unique<IntExpression>(std::stoi(_current_token.value));
+  //     break;
+  //
+  //   default:
+  //     throw std::runtime_error("expected Expression got " + StringTokenType(
+  //                                  _current_token.type) + " instead");
+  //     return nullptr;
+  //     break;
+  // }
+}
 
-    default:
-      throw std::runtime_error("expected Expression got " + StringTokenType(
-                                   _current_token.type) + " instead");
-      return nullptr;
-      break;
+std::unique_ptr<Expression> Parser::ParsePrefix() {
+  TokenType prefix_type;
+
+  if (_current_token.type == TokenType::kMinus) {
+    prefix_type = TokenType::kMinus;
+    ConsumeToken();
+    return std::make_unique<PrefixExpression>(TokenType::kMinus,
+           std::make_unique<IntExpression>(std::stoi(_current_token.value)));
+  } else if (_current_token.type == TokenType::kTilde) {
+    prefix_type = TokenType::kTilde;
+    ConsumeToken();
+  } else if (_current_token.type == TokenType::kNumber)
+    return std::make_unique<IntExpression>(std::stoi(_current_token.value));
+  else {
+    throw std::runtime_error("expected prefix token got " + StringTokenType(
+                                 _current_token.type) + " instead");
   }
 }
 

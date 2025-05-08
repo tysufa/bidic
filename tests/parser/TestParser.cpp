@@ -70,5 +70,51 @@ TEST(ParserTest, BasicProgramTest) {
       EXPECT_EQ(p_return_statement->return_value()->Evaluate()->DebugResult(), "0");
 
   }
+}
 
+TEST(ParserTest, UnaryOperator) {
+  std::string input = R"(int test(){
+    return -1;
+    })";
+  Lexer lexer(input);
+  std::vector<Token> tokens = lexer.Tokens();
+
+  Parser parser(tokens);
+  std::unique_ptr<Program> p = parser.ParseProgram();
+
+  const std::vector<std::unique_ptr<Instruction>>& instructions = p->instructions();
+
+  auto pDeclaration = dynamic_cast<FunctionDeclaration const*>
+                      (instructions[0].get());
+
+  ASSERT_EQ(instructions.size(), 1);
+
+  EXPECT_EQ(instructions[0]->TypeInstruction(), "FunctionDeclaration");
+  EXPECT_NE(pDeclaration, nullptr) << "Expected non-null Declaration pointer";
+
+  if (pDeclaration) {
+    EXPECT_EQ(pDeclaration->identifier()->name(), "test");
+    EXPECT_EQ(pDeclaration->type(), Type::kInt);
+
+
+    ASSERT_EQ(pDeclaration->instructions().size(), 1);
+
+    EXPECT_EQ(pDeclaration->instructions()[0]->TypeInstruction(),
+              "ReturnStatement");
+
+    auto p_return_statement = dynamic_cast<ReturnStatement const*>
+                              (pDeclaration->instructions()[0].get());
+
+    EXPECT_NE(p_return_statement,
+              nullptr) << "Expected non-null return statement pointer";
+
+    if (p_return_statement) {
+      auto p_prefix_expr = dynamic_cast<PrefixExpression const*>
+                           (p_return_statement->return_value().get());
+      EXPECT_NE(p_prefix_expr,
+                nullptr) << "Expected non-null PrefixExpression pointer";
+      EXPECT_EQ(p_return_statement->return_value()->Evaluate()->DebugResult(), "-1");
+    }
+
+  }
 }

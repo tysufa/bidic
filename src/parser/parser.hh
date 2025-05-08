@@ -29,6 +29,18 @@ class Parser {
   void ExpectToken(const TokenType& tok);
   void CheckCurToken(const TokenType& tok);
 
+  std::unique_ptr<Expression> ParsePrefix();
+  int Precedence(TokenType t) {
+    if (t == TokenType::kPlus or t == TokenType::kMinus)
+      return 2;
+    else if (t == TokenType::kStar or t == TokenType::kSlash)
+      return 3;
+    else if (t == TokenType::kLeftParenthesis or t == TokenType::kRightParenthesis)
+      return 1;
+    else
+      return 0;
+  }
+
  private:
   int _current_token_index;
   Token _current_token;
