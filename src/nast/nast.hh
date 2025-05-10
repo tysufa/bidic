@@ -29,17 +29,19 @@ class Variable {
 
 class Expression {
  public:
+  virtual int Evaluate() const = 0;
 
 };
 
 // TODO: For now Constant is only integers, later we need to make it a virtual
 // class and make subclasses for other types
-class Constant {
+class Constant : public Expression {
  public:
   Constant(int value)
     : _value(value) {}
 
   int value() const {return _value;}
+  int Evaluate() const override {return _value;}
 
 
  private:
@@ -120,14 +122,19 @@ class Move : public Instruction {
 
 class Return : public Instruction {
  public:
-  Return(std::unique_ptr<Move> mov) : _move(std::move(mov)) {}
+  Return(std::unique_ptr<Constant> return_value)
+    : _return_value(std::move(return_value)) {}
 
   std::string TypeInstruction() const override { return "ReturnInstruction"; }
 
-  const std::unique_ptr<Move>& move() const { return _move; }
+  std::unique_ptr<Move> move() const {
+    return std::make_unique<Move>(
+        Register::eax, std::make_unique<Constant>(_return_value->value())
+    );
+  }
 
  private:
-  std::unique_ptr<Move> _move;
+  std::unique_ptr<Constant> _return_value;
 };
 
 class Unary : public Expression{

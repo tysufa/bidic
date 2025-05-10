@@ -2,6 +2,7 @@
 #include "ast.hh"
 #include "nast.hh"
 #include <memory>
+#include <utility>
 #include <vector>
 
 std::unique_ptr<nast::Program> eval(std::unique_ptr<Program> ast) {
@@ -26,7 +27,9 @@ std::unique_ptr<nast::Program> eval(std::unique_ptr<Program> ast) {
         auto move = std::make_unique<nast::Move>(Register::eax,
                     std::make_unique<nast::Constant>(return_value->value()));
 
-        nasm_func->add_instruction(std::make_unique<nast::Return>(std::move(move)));
+        auto constant = std::make_unique<nast::Constant>(return_value->value());
+
+        nasm_func->add_instruction(std::make_unique<nast::Return>(std::move(constant)));
         nast->add_instruction(std::move(nasm_func));
       }
 
