@@ -18,19 +18,32 @@ inline std::string RegisterToString(Register r) {
 namespace nast {
 using namespace nast;
 
-class Variable {
- public:
-  Variable(const std::string& name)
-    : _name(name) {}
-
- private:
-  std::string _name;
-};
 
 class Expression {
  public:
   virtual int Evaluate() const = 0;
+  //TODO: value() should be replaced by Evaluate(), it is here juste to test
+  //that you can replace Constant by Expression
+  virtual int value() const = 0;
 
+  virtual std::string ExpressionType() const = 0;
+
+};
+
+class Variable : public Expression {
+ public:
+  Variable(const std::string& name)
+    : _name(name) {}
+
+  const std::string& name() const {return _name;}
+
+  int Evaluate() const override {return 0;}
+  int value() const override {return 0;}
+
+  std::string ExpressionType() const override {return "Variable";}
+
+ private:
+  std::string _name;
 };
 
 // TODO: For now Constant is only integers, later we need to make it a virtual
@@ -40,9 +53,10 @@ class Constant : public Expression {
   Constant(int value)
     : _value(value) {}
 
-  int value() const {return _value;}
+  int value() const override {return _value;}
   int Evaluate() const override {return _value;}
 
+  std::string ExpressionType() const override {return "Constant";}
 
  private:
   int _value;
@@ -122,10 +136,12 @@ class Move : public Instruction {
 
 class Return : public Instruction {
  public:
-  Return(std::unique_ptr<Constant> return_value)
+  Return(std::unique_ptr<Expression> return_value)
     : _return_value(std::move(return_value)) {}
 
   std::string TypeInstruction() const override { return "ReturnInstruction"; }
+
+  const std::unique_ptr<Expression>& return_value() const {return _return_value;}
 
   std::unique_ptr<Move> move() const {
     return std::make_unique<Move>(
@@ -134,16 +150,24 @@ class Return : public Instruction {
   }
 
  private:
-  std::unique_ptr<Constant> _return_value;
+  std::unique_ptr<Expression> _return_value;
 };
 
 class Unary : public Expression{
  public:
-  Unary(UnaryOperation unary_op, std::unique_ptr<Constant> src, std::unique_ptr<Variable> dst)
+  Unary(UnaryOperation unary_op, std::unique_ptr<Expression> src, std::unique_ptr<Variable> dst)
     : _unary_operation(unary_op), _src(std::move(src)), _dst(std::move(dst)) {}
 
+  UnaryOperation unary_operation() const {return _unary_operation;}
+  const std::unique_ptr<Variable>& dst() const {return _dst;}
+
+  int value() const override {return 0;}
+  int Evaluate() const override {return -_src->Evaluate();}
+
+  std::string ExpressionType() const override {return "Unary";}
+
  private:
-  std::unique_ptr<Constant> _src;
+  std::unique_ptr<Expression> _src;
   std::unique_ptr<Variable> _dst;
   UnaryOperation _unary_operation;
 };

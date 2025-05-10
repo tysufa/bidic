@@ -60,7 +60,7 @@ TEST(ParserTest, BasicProgramTest) {
     EXPECT_EQ(pDeclaration->instructions()[0]->TypeInstruction(),
               "ReturnStatement");
 
-    auto p_return_statement = dynamic_cast<ReturnStatement const*>
+    auto p_return_statement = dynamic_cast<ReturnStatement*>
                               (pDeclaration->instructions()[0].get());
 
     EXPECT_NE(p_return_statement,
@@ -103,7 +103,7 @@ TEST(ParserTest, UnaryOperator) {
       EXPECT_EQ(pDeclaration->instructions()[0]->TypeInstruction(),
                 "ReturnStatement");
 
-      auto p_return_statement = dynamic_cast<ReturnStatement const*>
+      auto p_return_statement = dynamic_cast<ReturnStatement*>
                                 (pDeclaration->instructions()[0].get());
 
       EXPECT_NE(p_return_statement,
