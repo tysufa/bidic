@@ -12,8 +12,8 @@ std::string Emitor::Emit(std::unique_ptr<nast::Program> program) {
 
   std::string indent = "";
 
-  if (auto function = dynamic_cast<nast::FunctionDeclaration const *>(
-          instruction[0].get())) {
+  if (auto function = dynamic_cast<nast::FunctionDeclaration const*>(
+                          instruction[0].get())) {
     result += indent + "." + function->identifier()->name() + "\n";
     indent += "  ";
 
@@ -24,10 +24,10 @@ std::string Emitor::Emit(std::unique_ptr<nast::Program> program) {
       std::cout << "instruction type : "
                 << func_instructions[i]->TypeInstruction();
       if (auto func_return =
-              dynamic_cast<nast::Return const *>(func_instructions[i].get())) {
+              dynamic_cast<nast::Return const*>(func_instructions[i].get())) {
 
         result += indent + "mov " + func_return->move()->get_register_str() +
-                  ", " + std::to_string(func_return->move()->value()) + "\n";
+                  ", " + std::to_string(func_return->move()->value()->value()) + "\n";
 
         result += indent + "ret\n";
       }

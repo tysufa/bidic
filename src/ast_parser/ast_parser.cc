@@ -23,7 +23,8 @@ std::unique_ptr<nast::Program> eval(std::unique_ptr<Program> ast) {
       if (auto return_value = dynamic_cast<IntLiteral const*>
                               (return_expresion.get())) {
 
-        auto move = std::make_unique<nast::Move>(Register::eax, return_value->value());
+        auto move = std::make_unique<nast::Move>(Register::eax,
+                    std::make_unique<nast::Constant>(return_value->value()));
 
         nasm_func->add_instruction(std::make_unique<nast::Return>(std::move(move)));
         nast->add_instruction(std::move(nasm_func));
