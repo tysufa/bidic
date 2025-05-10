@@ -121,7 +121,7 @@ TEST(ParserTest, UnaryOperator) {
   }
   {
     std::string input = R"(int test(){
-    return -(-1);
+    return ~(-3);
     })";
     Lexer lexer(input);
     std::vector<Token> tokens = lexer.Tokens();
@@ -147,7 +147,7 @@ TEST(ParserTest, UnaryOperator) {
                            (p_return_statement->return_value().get());
       EXPECT_NE(p_prefix_expr,
                 nullptr) << "Expected non-null PrefixExpression pointer";
-      EXPECT_EQ(p_return_statement->return_value()->Evaluate()->DebugResult(), "1");
+      EXPECT_EQ(p_return_statement->return_value()->Evaluate()->DebugResult(), "2");
     }
   }
 }

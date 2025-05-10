@@ -14,13 +14,28 @@ target_include_directories(Lexer PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-# --- Ast Library (Header only) ---
-add_library(Ast INTERFACE)
+# --- Ast Library ---
+add_library(Ast STATIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/ast/ast.cc
+)
 
-target_include_directories(Ast INTERFACE
+target_include_directories(Ast PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/lexer
+)
+
+
+# --- Parser Library ---
+add_library(Parser STATIC
+  src/parser/parser.cc
+)
+
+target_include_directories(Parser PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/parser
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/lexer
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ast
 )
 
+target_link_libraries(Parser PRIVATE Ast)
 
 # --- Nast Library (Header only) ---
 add_library(Nast INTERFACE)
@@ -39,17 +54,6 @@ target_include_directories(Ast_parser PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/nast
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ast
   ${CMAKE_CURRENT_SOURCE_DIR}/src/lexer
-)
-
-# --- Parser Library ---
-add_library(Parser STATIC
-  src/parser/parser.cc
-)
-
-target_include_directories(Parser PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/parser
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/lexer
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/ast
 )
 
 # --- Emitor Library ---

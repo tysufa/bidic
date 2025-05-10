@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
+#include <utility>
 
 std::unique_ptr<Program> Parser::ParseProgram() {
   auto program = std::make_unique<Program>();
@@ -30,53 +31,45 @@ std::unique_ptr<Expression> Parser::ParseExpression() {
   }
 
   return left;
-
-  // switch (_current_token.type) {
-  //   case TokenType::kNumber:
-  //     return std::make_unique<IntExpression>(std::stoi(_current_token.value));
-  //     break;
-  //
-  //   default:
-  //     throw std::runtime_error("expected Expression got " + StringTokenType(
-  //                                  _current_token.type) + " instead");
-  //     return nullptr;
-  //     break;
-  // }
 }
 
 std::unique_ptr<Expression> Parser::ParsePrefix() {
   TokenType prefix_type;
+  std::unique_ptr<PrefixExpression> prefix;
+  std::unique_ptr<Expression> expr;
 
   if (_current_token.type == TokenType::kMinus) {
     prefix_type = TokenType::kMinus;
-    std::unique_ptr<PrefixExpression> prefix;
     ConsumeToken();
 
-    std::unique_ptr<Expression> expr = ParseExpression();
+    expr = ParseExpression(); // get rest of the expression
 
     prefix = std::make_unique<PrefixExpression>(prefix_type, std::move(expr));
 
     return prefix;
 
-    // return std::make_unique<PrefixExpression>(prefix_type,
-    //        std::make_unique<IntExpression>(std::stoi(_current_token.value)));
   } else if (_current_token.type == TokenType::kTilde) {
     prefix_type = TokenType::kTilde;
     ConsumeToken();
+
+    expr = ParseExpression();
+
+    prefix = std::make_unique<PrefixExpression>(prefix_type, std::move(expr));
+
+    return prefix;
+
   } else if (_current_token.type == TokenType::kNumber) {
     auto res = std::make_unique<IntExpression>(std::stoi(_current_token.value));
     return res;
   } else if (_current_token.type == TokenType::kLeftParenthesis) {
     ConsumeToken();
-    auto res = ParseExpression();
+    expr = ParseExpression();
     ConsumeToken();
-    return res;
+    return expr;
   } else {
     throw std::runtime_error("expected prefix token got " + StringTokenType(
                                  _current_token.type) + " instead");
   }
-
-  throw _current_token;
 }
 
 
