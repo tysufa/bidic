@@ -51,7 +51,7 @@ TEST(EmitorTest, UnaryOperator) {
   std::string expected_res = R"(.test
   mov [ebp-4], 1
   neg [ebp-4]
-  mov eax, [esp-4]
+  mov eax, [ebp-4]
   ret
 )";
 
@@ -80,7 +80,7 @@ TEST(EmitorTest, MultipleUnaryOperators) {
   neg [ebp-4]
   mov [ebp-8], [ebp-4]
   not [ebp-8]
-  mov eax, [esp-8]
+  mov eax, [ebp-8]
   ret
 )";
 
