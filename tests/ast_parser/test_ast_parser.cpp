@@ -28,31 +28,28 @@ TEST(AstParserTest, BasicProgramTest) {
 
   EXPECT_EQ(instructions[0]->TypeInstruction(), "FunctionDeclaration");
 
-  auto pDeclaration = dynamic_cast<nast::FunctionDeclaration const*>
-                      (instructions[0].get());
+  auto p_function_declaration = dynamic_cast<nast::FunctionDeclaration const*>
+                                (instructions[0].get());
 
-  EXPECT_NE(pDeclaration, nullptr) << "Expected non-null Declaration pointer";
+  EXPECT_NE(p_function_declaration, nullptr) << "Expected non-null func pointer";
 
-  if (pDeclaration) {
-    EXPECT_EQ(pDeclaration->identifier()->name(), "test");
+  if (p_function_declaration) {
+    EXPECT_EQ(p_function_declaration->identifier()->name(), "test");
 
 
-    ASSERT_EQ(pDeclaration->instructions().size(), 1);
+    ASSERT_EQ(p_function_declaration->instructions().size(), 1);
 
-    EXPECT_EQ(pDeclaration->instructions()[0]->TypeInstruction(),
+    EXPECT_EQ(p_function_declaration->instructions()[0]->TypeInstruction(),
               "ReturnInstruction");
 
     auto p_return_statement = dynamic_cast<nast::Return const*>
-                              (pDeclaration->instructions()[0].get());
+                              (p_function_declaration->instructions()[0].get());
 
     EXPECT_NE(p_return_statement,
               nullptr) << "Expected non-null return statement pointer";
 
-    if (p_return_statement) {
-      // EXPECT_EQ(p_return_statement->move()->get_register(), Register::eax);
-      // EXPECT_EQ(p_return_statement->move()->value()->value(), 1);
+    if (p_return_statement)
       EXPECT_EQ(p_return_statement->return_value()->Evaluate(), 1);
-    }
   }
 }
 
@@ -72,30 +69,81 @@ TEST(AstParserTest, UnaryOperator) {
 
   const std::vector<std::unique_ptr<nast::Instruction>>& instructions = res->instructions();
 
-  auto pDeclaration = dynamic_cast<nast::FunctionDeclaration const*>
-                      (instructions[0].get());
+  auto p_func_declaration = dynamic_cast<nast::FunctionDeclaration const*>
+                            (instructions[0].get());
 
-  if (pDeclaration) {
-    ASSERT_EQ(pDeclaration->instructions().size(), 1);
+  ASSERT_NE(p_func_declaration, nullptr);
 
-    EXPECT_EQ(pDeclaration->instructions()[0]->TypeInstruction(),
-              "ReturnInstruction");
+  if (p_func_declaration) {
+    ASSERT_EQ(p_func_declaration->instructions().size(), 2);
 
+    EXPECT_EQ(p_func_declaration->instructions()[0]->TypeInstruction(),
+              "Unary");
+
+    const auto& unary = p_func_declaration->instructions()[0];
+    auto p_unary = dynamic_cast<nast::Unary const*>(unary.get());
+    EXPECT_EQ(p_unary->unary_operation(), UnaryOperation::kNegate);
+    EXPECT_EQ(p_unary->dst()->ExpressionType(), "Variable");
+    EXPECT_EQ(p_unary->src()->ExpressionType(), "Constant");
+
+    EXPECT_EQ(p_func_declaration->instructions()[1]->TypeInstruction(),
+              "Return");
     auto p_return_statement = dynamic_cast<nast::Return const*>
-                              (pDeclaration->instructions()[0].get());
+                              (p_func_declaration->instructions()[1].get());
 
     EXPECT_NE(p_return_statement,
               nullptr) << "Expected non-null return statement pointer";
 
     if (p_return_statement) {
-      auto p_unary_expression = dynamic_cast<nast::Unary const*>
-                                (p_return_statement->return_value().get());
+      EXPECT_NE(p_return_statement->return_value(), nullptr);
+      EXPECT_EQ(p_return_statement->return_value()->ExpressionType(), "Variable");
 
-      EXPECT_NE(p_unary_expression, nullptr);
+      const auto& var = p_return_statement->return_value();
+      auto p_var = dynamic_cast<nast::Variable const*> (var.get());
+      EXPECT_EQ(p_var->name(), "tempo.0");
+    }
+  }
+}
 
-      if (p_unary_expression) {
-        EXPECT_EQ(p_unary_expression->unary_operation(), UnaryOperation::kNegate);
-        EXPECT_EQ(p_unary_expression->dst()->name(), "tempo.0");
+TEST(AstParserTest, MultipleUnaryOperators) {
+  std::string input = R"(int test(){
+    return ~(-2);
+    })";
+  Lexer lexer(input);
+  std::vector<Token> tokens = lexer.Tokens();
+
+  Parser parser(tokens);
+
+  std::unique_ptr<nast::Program> res = eval(parser.ParseProgram());
+
+  auto pDeclaration = dynamic_cast<nast::FunctionDeclaration const*>
+                      (res->instructions()[0].get());
+
+  if (pDeclaration) {
+    ASSERT_EQ(pDeclaration->instructions().size(), 1);
+
+    auto p_return_statement = dynamic_cast<nast::Return const*>
+                              (pDeclaration->instructions()[0].get());
+
+    if (p_return_statement) {
+      auto p_unary_expression_complement = dynamic_cast<nast::Unary const*>
+                                           (p_return_statement->return_value().get());
+
+      EXPECT_NE(p_unary_expression_complement, nullptr);
+
+      if (p_unary_expression_complement) {
+        EXPECT_EQ(p_unary_expression_complement->unary_operation(),
+                  UnaryOperation::kComplement);
+        EXPECT_EQ(p_unary_expression_complement->dst()->name(), "tempo.1");
+
+        auto p_unary_expression_negate = dynamic_cast<nast::Unary const*>
+                                         ( p_unary_expression_complement->src().get() );
+
+        EXPECT_NE(p_unary_expression_negate, nullptr);
+        EXPECT_EQ(p_unary_expression_negate->unary_operation(),
+                  UnaryOperation::kNegate);
+        EXPECT_EQ(p_unary_expression_negate->dst()->name(), "tempo.0");
+
 
         EXPECT_EQ(p_return_statement->return_value()->Evaluate(), -2);
       }

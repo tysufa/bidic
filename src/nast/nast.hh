@@ -139,7 +139,7 @@ class Return : public Instruction {
   Return(std::unique_ptr<Expression> return_value)
     : _return_value(std::move(return_value)) {}
 
-  std::string TypeInstruction() const override { return "ReturnInstruction"; }
+  std::string TypeInstruction() const override { return "Return"; }
 
   const std::unique_ptr<Expression>& return_value() const {return _return_value;}
 
@@ -153,18 +153,16 @@ class Return : public Instruction {
   std::unique_ptr<Expression> _return_value;
 };
 
-class Unary : public Expression{
+class Unary : public Instruction{
  public:
   Unary(UnaryOperation unary_op, std::unique_ptr<Expression> src, std::unique_ptr<Variable> dst)
     : _unary_operation(unary_op), _src(std::move(src)), _dst(std::move(dst)) {}
 
   UnaryOperation unary_operation() const {return _unary_operation;}
   const std::unique_ptr<Variable>& dst() const {return _dst;}
+  const std::unique_ptr<Expression>& src() const {return _src;}
 
-  int value() const override {return 0;}
-  int Evaluate() const override {return -_src->Evaluate();}
-
-  std::string ExpressionType() const override {return "Unary";}
+  std::string TypeInstruction() const override {return "Unary";};
 
  private:
   std::unique_ptr<Expression> _src;

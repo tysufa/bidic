@@ -6,23 +6,30 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <utility>
 #include <vector>
 
-std::unique_ptr<nast::Expression> ParseAstExpression(nast::Program* nast,
+std::string MakeTemporaryVariableName() {
+  static unsigned int var_number = 0;
+  return "tempo." + std::to_string(var_number++);
+}
+
+std::unique_ptr<nast::Expression> ParseAstExpression(
+    nast::FunctionDeclaration* nast,
     const std::unique_ptr<Expression>& expr) {
 
   auto constant = dynamic_cast<IntExpression const*>(expr.get());
 
-
-
-
   if (constant) {
+    // we get the value of the constant
     LiteralValue constant_val = constant->Evaluate()->value();
 
-    if (int* intVal = std::get_if<int>(&constant_val)) {
-      return std::make_unique<nast::Constant>(*intVal);  // Use the extracted int
-    }
+    // we check the different possible value types (int, str...)
+    if (int* int_val = std::get_if<int>(&constant_val)) {
+      return std::make_unique<nast::Constant>(*int_val);  // Use the extracted int
+    } else
+      throw std::runtime_error("LiteralValue is of unexpected type");
   }
 
   auto unary = dynamic_cast<PrefixExpression const*>(expr.get());
@@ -30,13 +37,17 @@ std::unique_ptr<nast::Expression> ParseAstExpression(nast::Program* nast,
   if (unary) {
     auto src = ParseAstExpression(std::move(nast), unary->expression_value());
 
-    auto dst = std::make_unique<nast::Variable>("tempo.0");
+    std::string variable_name = MakeTemporaryVariableName();
+    auto dst = std::make_unique<nast::Variable>(variable_name);
 
     UnaryOperation op = (unary->prefix_type() == TokenType::kMinus ?
                          UnaryOperation::kNegate : UnaryOperation::kComplement);
 
-    return std::make_unique<nast::Unary>(op, std::move(src),
-                                         std::move(dst));
+    nast->add_instruction(std::make_unique<nast::Unary>(op, std::move(src),
+                          std::move(dst)));
+
+    // we can't use dst again since we moved it into our Unary operator
+    return std::make_unique<nast::Variable>(variable_name);
   }
 
   else
@@ -49,37 +60,24 @@ std::unique_ptr<nast::Program> eval(std::unique_ptr<Program> ast) {
   const std::vector<std::unique_ptr<Instruction>>& instruction = ast->instructions();
 
 
-
   if (auto function = dynamic_cast<FunctionDeclaration const*>
                       (instruction[0].get())) {
+
+    // creating nast Function
     auto ident = std::make_unique<nast::Identifier>(function->identifier()->name());
     auto nasm_func = std::make_unique<nast::FunctionDeclaration>(std::move(ident));
 
     if (auto ret = dynamic_cast<ReturnStatement const*>
                    (function->instructions()[0].get())) {
-      const auto& return_expression = ret->return_value();
-      auto return_literal = return_expression->Evaluate();
 
+      const std::unique_ptr<Expression>& return_expression = ret->return_value();
 
-      auto nast_return_expr = ParseAstExpression(nast.get(), return_expression);
-
-      auto return_value = dynamic_cast<IntLiteral const*>
-                          (return_literal.get());
+      // ParseAstExpression() should return a Constant or a Variable
+      auto nast_return_expr = ParseAstExpression(nasm_func.get(), return_expression);
 
       nasm_func->add_instruction(std::make_unique<nast::Return>(std::move(
                                      nast_return_expr)));
       nast->add_instruction(std::move(nasm_func));
-
-      // if (return_value) {
-      //
-      //   auto move = std::make_unique<nast::Move>(Register::eax,
-      //               std::make_unique<nast::Constant>(return_value->value()));
-      //
-      //   auto constant = std::make_unique<nast::Constant>(return_value->value());
-      //
-      //   nasm_func->add_instruction(std::make_unique<nast::Return>(std::move(constant)));
-      //   nast->add_instruction(std::move(nasm_func));
-      // }
     }
   }
 
