@@ -73,8 +73,8 @@ class Program {
  public:
   Program() = default;
 
-  const std::vector<std::unique_ptr<Instruction>> &instructions() const {
-    return _instructions;
+  std::vector<std::unique_ptr<Instruction>> instructions() {
+    return std::move(_instructions);
   }
   void add_instruction(std::unique_ptr<nast::Instruction> instruction) {
     _instructions.push_back(std::move(instruction));
@@ -103,8 +103,8 @@ class FunctionDeclaration : public nast::Instruction {
     return "FunctionDeclaration";
   };
 
-  const std::vector<std::unique_ptr<nast::Instruction>> &instructions() const {
-    return _instructions;
+  std::vector<std::unique_ptr<nast::Instruction>> instructions() {
+    return std::move(_instructions);
   }
 
   const std::unique_ptr<Identifier>& identifier() const { return _identifier; }

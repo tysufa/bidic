@@ -21,11 +21,66 @@ TEST(EmitorTest, BasicProgramTest) {
   // the std::move is automatic
   nast = eval(parser.ParseProgram());
 
-  Emitor emitor;
-  std::string res = emitor.Emit(std::move(nast));
+  Emitor emitor(std::move(nast));
+  std::string res = emitor.Emit();
 
   std::string expected_res = R"(.test
   mov eax, 1
+  ret
+)";
+
+  EXPECT_EQ(res, expected_res);
+}
+
+TEST(EmitorTest, UnaryOperator) {
+  std::string input = R"(int test(){
+    return -1;
+    })";
+  Lexer lexer(input);
+  std::vector<Token> tokens = lexer.Tokens();
+
+  Parser parser(tokens);
+
+  std::unique_ptr<nast::Program> nast;
+  // the std::move is automatic
+  nast = eval(parser.ParseProgram());
+
+  Emitor emitor(std::move(nast));
+  std::string res = emitor.Emit();
+
+  std::string expected_res = R"(.test
+  mov [ebp-4], 1
+  neg [ebp-4]
+  mov eax, [esp-4]
+  ret
+)";
+
+  EXPECT_EQ(res, expected_res);
+}
+
+
+TEST(EmitorTest, MultipleUnaryOperators) {
+  std::string input = R"(int test(){
+    return ~(-1);
+    })";
+  Lexer lexer(input);
+  std::vector<Token> tokens = lexer.Tokens();
+
+  Parser parser(tokens);
+
+  std::unique_ptr<nast::Program> nast;
+  // the std::move is automatic
+  nast = eval(parser.ParseProgram());
+
+  Emitor emitor(std::move(nast));
+  std::string res = emitor.Emit();
+
+  std::string expected_res = R"(.test
+  mov [ebp-4], 1
+  neg [ebp-4]
+  mov [ebp-8], [ebp-4]
+  not [ebp-8]
+  mov eax, [esp-8]
   ret
 )";
 
