@@ -1,8 +1,8 @@
 #include "lexer.hh"
 #include "token.hh"
+#include <gtest/gtest.h>
 #include <iostream>
 #include <string>
-#include <gtest/gtest.h>
 
 TEST(LexerTest, BasicIntDeclaration) {
   std::string input = "int test = 34;";
@@ -25,18 +25,22 @@ TEST(LexerTest, BasicProgramTest) {
     })";
   Lexer lexer(input);
   std::vector<Token> tokens = lexer.Tokens();
-  std::vector<TokenType> expected_tokens = {
-    TokenType::kInt, TokenType::kMain, TokenType::kLeftParenthesis,
-    TokenType::kRightParenthesis, TokenType::kLeftBracket, TokenType::kReturn,
-    TokenType::kNumber, TokenType::kSemiColon, TokenType::kRightBracket
-  };
+  std::vector<TokenType> expected_tokens = {TokenType::kInt,
+                                            TokenType::kMain,
+                                            TokenType::kLeftParenthesis,
+                                            TokenType::kRightParenthesis,
+                                            TokenType::kLeftBracket,
+                                            TokenType::kReturn,
+                                            TokenType::kNumber,
+                                            TokenType::kSemiColon,
+                                            TokenType::kRightBracket};
   ASSERT_EQ(tokens.size(), expected_tokens.size());
 
   for (int i = 0; i < tokens.size(); i++) {
-    EXPECT_EQ(tokens[i].type, expected_tokens[i]) << "tokens[" << i
-      << "].value = " << tokens[i].value << "\nexpected " <<
-      StringTokenType(tokens[i].type) << " got " <<
-      StringTokenType(expected_tokens[i]) << "instead\n";
+    EXPECT_EQ(tokens[i].type, expected_tokens[i])
+        << "tokens[" << i << "].value = " << tokens[i].value << "\nexpected "
+        << StringTokenType(tokens[i].type) << " got "
+        << StringTokenType(expected_tokens[i]) << "instead\n";
   }
 }
 
@@ -62,4 +66,21 @@ TEST(LexerTest, UnaryOperator) {
   EXPECT_EQ(tokens[1].type, TokenType::kDecrement);
   EXPECT_EQ(tokens[2].type, TokenType::kNumber);
   EXPECT_EQ(tokens[3].type, TokenType::kSemiColon);
+}
+
+TEST(LexerTest, BinaryOperators) {
+  std::string input = "return 1+2*3/4;";
+  Lexer lexer(input);
+  std::vector<Token> tokens = lexer.Tokens();
+  ASSERT_EQ(tokens.size(), 9);
+  EXPECT_EQ(lexer.input(), input);
+  EXPECT_EQ(tokens[0].type, TokenType::kReturn);
+  EXPECT_EQ(tokens[1].type, TokenType::kNumber);
+  EXPECT_EQ(tokens[2].type, TokenType::kPlus);
+  EXPECT_EQ(tokens[3].type, TokenType::kNumber);
+  EXPECT_EQ(tokens[4].type, TokenType::kStar);
+  EXPECT_EQ(tokens[5].type, TokenType::kNumber);
+  EXPECT_EQ(tokens[6].type, TokenType::kSlash);
+  EXPECT_EQ(tokens[7].type, TokenType::kNumber);
+  EXPECT_EQ(tokens[8].type, TokenType::kSemiColon);
 }
