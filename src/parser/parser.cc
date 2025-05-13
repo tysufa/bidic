@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <utility>
 
 std::unique_ptr<Program> Parser::ParseProgram() {
@@ -18,16 +19,42 @@ std::unique_ptr<Program> Parser::ParseProgram() {
   return program;
 }
 
-std::unique_ptr<Expression> Parser::ParseExpression() {
+int Parser::Precedence(TokenType tok) {
+  if (tok == TokenType::kStar or tok == TokenType::kSlash)
+    return 50;
+  else if (tok == TokenType::kPlus or tok == TokenType::kMinus or
+           tok == TokenType::kTilde)
+    return 45;
+  else if (tok == TokenType::kLeftParenthesis)
+    return 10;
+  else
+    throw std::invalid_argument("expected operator, got " +
+                                StringTokenType(tok) + " instead");
+}
+
+std::unique_ptr<Expression> Parser::ParseExpression(int precedenceLimit) {
 
   std::unique_ptr<Expression> left = ParsePrefix();
 
   while (_current_token.type != TokenType::kEof or
          _current_token.type != TokenType::kIllegal) {
 
+    std::cout << StringTokenType(_current_token.type) << std::endl;
+
     if (!IsOperator(_current_token.type))
       return left;
 
+    int prec = Precedence(_current_token.type);
+
+    if (prec > precedenceLimit) {
+      TokenType op = _current_token.type;
+      ConsumeToken();
+      std::unique_ptr<Expression> right = ParseExpression(prec);
+      left = std::make_unique<BinaryExpression>(op, std::move(left),
+                                                std::move(right));
+    } else {
+      return left;
+    }
   }
 
   return left;
@@ -42,7 +69,8 @@ std::unique_ptr<Expression> Parser::ParsePrefix() {
     prefix_type = TokenType::kMinus;
     ConsumeToken();
 
-    expr = ParseExpression(); // get rest of the expression
+    // get rest of the expression
+    expr = ParseExpression(Precedence(prefix_type));
 
     prefix = std::make_unique<PrefixExpression>(prefix_type, std::move(expr));
 
@@ -52,7 +80,7 @@ std::unique_ptr<Expression> Parser::ParsePrefix() {
     prefix_type = TokenType::kTilde;
     ConsumeToken();
 
-    expr = ParseExpression();
+    expr = ParseExpression(Precedence(prefix_type));
 
     prefix = std::make_unique<PrefixExpression>(prefix_type, std::move(expr));
 
@@ -60,29 +88,27 @@ std::unique_ptr<Expression> Parser::ParsePrefix() {
 
   } else if (_current_token.type == TokenType::kNumber) {
     auto res = std::make_unique<IntExpression>(std::stoi(_current_token.value));
+    ConsumeToken();
     return res;
   } else if (_current_token.type == TokenType::kLeftParenthesis) {
     ConsumeToken();
-    expr = ParseExpression();
+    expr = ParseExpression(Precedence(TokenType::kLeftParenthesis));
     ConsumeToken();
     return expr;
   } else {
-    throw std::runtime_error("expected prefix token got " + StringTokenType(
-                                 _current_token.type) + " instead");
+    throw std::runtime_error("expected prefix token got " +
+                             StringTokenType(_current_token.type) + " instead");
   }
 }
-
 
 std::unique_ptr<ReturnStatement> Parser::ParseReturnStatement() {
   ConsumeToken();
 
-
-  std::unique_ptr<Expression> res = ParseExpression();
+  std::unique_ptr<Expression> res = ParseExpression(0);
 
   auto return_statement = std::make_unique<ReturnStatement>(std::move(res));
 
-  ExpectToken(TokenType::kSemiColon);
-  ConsumeToken();
+  CheckCurToken(TokenType::kSemiColon);
 
   return return_statement;
 }
@@ -95,11 +121,12 @@ void Parser::ParseFunctionArguments() {
   ConsumeToken();
 }
 
-std::unique_ptr<FunctionDeclaration> Parser::ParseFunctionDeclaration(
-    Type declaration_type, std::unique_ptr<Identifier> ident) {
+std::unique_ptr<FunctionDeclaration>
+Parser::ParseFunctionDeclaration(Type declaration_type,
+                                 std::unique_ptr<Identifier> ident) {
 
-  auto function = std::make_unique<FunctionDeclaration>(std::move(ident),
-                  declaration_type);
+  auto function =
+      std::make_unique<FunctionDeclaration>(std::move(ident), declaration_type);
 
   ParseFunctionArguments();
 
@@ -116,7 +143,6 @@ std::unique_ptr<FunctionDeclaration> Parser::ParseFunctionDeclaration(
   return function;
 }
 
-
 std::unique_ptr<Declaration> Parser::ParseDeclaration(Type declaration_type) {
   ExpectToken(TokenType::kIdentifier);
 
@@ -128,20 +154,19 @@ std::unique_ptr<Declaration> Parser::ParseDeclaration(Type declaration_type) {
     ConsumeToken();
 
     switch (declaration_type) {
-      case Type::kInt:
-        ExpectToken(TokenType::kNumber);
-        ExpectToken(TokenType::kSemiColon);
-        ConsumeToken();
-        break;
+    case Type::kInt:
+      ExpectToken(TokenType::kNumber);
+      ExpectToken(TokenType::kSemiColon);
+      ConsumeToken();
+      break;
 
-      default:
-        return nullptr;
-        break;
+    default:
+      return nullptr;
+      break;
     }
 
   } else if (_next_token.type == TokenType::kLeftParenthesis)
     instr = ParseFunctionDeclaration(declaration_type, std::move(ident));
-
 
   else
     ExpectToken(TokenType::kSemiColon);
@@ -151,23 +176,21 @@ std::unique_ptr<Declaration> Parser::ParseDeclaration(Type declaration_type) {
 
 std::unique_ptr<Instruction> Parser::ParseInstruction() {
   switch (_current_token.type) {
-    case TokenType::kReturn:
-      return ParseReturnStatement();
-      break;
+  case TokenType::kReturn:
+    return ParseReturnStatement();
+    break;
 
-    case TokenType::kInt:
-      return ParseDeclaration(Type::kInt);
-      break;
+  case TokenType::kInt:
+    return ParseDeclaration(Type::kInt);
+    break;
 
-    default:
-      throw std::runtime_error("Expected instruction, got " + StringTokenType(
-                                   _current_token.type) + " instead");
+  default:
+    throw std::runtime_error("Expected instruction, got " +
+                             StringTokenType(_current_token.type) + " instead");
   }
-
 }
 
-void Parser::ParseStatement() {
-}
+void Parser::ParseStatement() {}
 
 void Parser::ConsumeToken() {
   _current_token_index++;
@@ -180,7 +203,7 @@ void Parser::ConsumeToken() {
     _next_token.type = TokenType::kEof;
 }
 
-void Parser::ExpectToken(const TokenType & tok) {
+void Parser::ExpectToken(const TokenType &tok) {
   if (_next_token.type != tok) {
     throw std::runtime_error("expected " + StringTokenType(tok) + ", got " +
                              StringTokenType(_next_token.type) + " instead");
@@ -188,12 +211,11 @@ void Parser::ExpectToken(const TokenType & tok) {
     ConsumeToken();
 }
 
-
-void Parser::CheckCurToken(const TokenType& tok) {
+void Parser::CheckCurToken(const TokenType &tok) {
   if (_current_token.type != tok) {
-    throw std::runtime_error("expected current token " + StringTokenType(
-                                 tok) + ", got " +
-                             StringTokenType(_next_token.type) + " instead");
+    throw std::runtime_error("expected current token " + StringTokenType(tok) +
+                             ", got " + StringTokenType(_next_token.type) +
+                             " instead");
   } else
     ConsumeToken();
 }
