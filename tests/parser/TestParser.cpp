@@ -194,6 +194,33 @@ TEST(ParserTest, BinaryOperators) {
           << "Expected non-null return statement pointer";
 
       if (p_return_statement) {
+        const auto &return_value = p_return_statement->return_value();
+
+        auto p_bin = dynamic_cast<BinaryExpression const *>(return_value.get());
+        EXPECT_NE(p_bin, nullptr);
+        if (p_bin) {
+          EXPECT_EQ(p_bin->operation(), TokenType::kPlus);
+          const auto &left = p_bin->left();
+          const auto &right = p_bin->right();
+
+          auto p_left = dynamic_cast<IntExpression const *>(left.get());
+          EXPECT_NE(p_left, nullptr);
+          if (p_left) {
+            EXPECT_EQ(p_left->Evaluate()->DebugResult(), "1");
+          }
+
+          auto p_right = dynamic_cast<BinaryExpression const *>(right.get());
+          EXPECT_NE(p_right, nullptr);
+          if (p_right) {
+            EXPECT_EQ(p_right->operation(), TokenType::kStar);
+
+            EXPECT_NE(p_right->right(), nullptr);
+            EXPECT_EQ(p_right->right()->Evaluate()->DebugResult(), "3");
+
+            EXPECT_NE(p_right->left(), nullptr);
+            EXPECT_EQ(p_right->left()->Evaluate()->DebugResult(), "2");
+          }
+        }
       }
     }
   }

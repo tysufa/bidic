@@ -83,6 +83,10 @@ public:
                    std::unique_ptr<Expression> right)
       : _operation(t), _left(std::move(left)), _right(std::move(right)) {}
 
+  TokenType operation() const { return _operation; }
+  const std::unique_ptr<Expression> &left() const { return _left; }
+  const std::unique_ptr<Expression> &right() const { return _right; }
+
   std::unique_ptr<Literal> Evaluate() const override;
   std::string ExpressionType() const override { return "Binary"; }
 
