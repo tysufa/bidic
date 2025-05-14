@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <string>
 
-std::unique_ptr<ConstantValue> BinaryExpression::Evaluate() const {
+std::unique_ptr<ast::ConstantValue> ast::BinaryExpression::Evaluate() const {
   std::unique_ptr<ConstantValue> left = _left->Evaluate();
   std::unique_ptr<ConstantValue> right = _right->Evaluate();
 
@@ -37,7 +37,7 @@ std::unique_ptr<ConstantValue> BinaryExpression::Evaluate() const {
   } else
     throw std::invalid_argument("left or/and right is/are of unexpected type");
 }
-std::unique_ptr<ConstantValue> PrefixExpression::Evaluate() const {
+std::unique_ptr<ast::ConstantValue> ast::PrefixExpression::Evaluate() const {
   std::unique_ptr<ConstantValue> eval = _expression_value->Evaluate();
 
   // ConstantValue eval_val = eval->value();

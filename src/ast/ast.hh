@@ -6,6 +6,10 @@
 #include <variant>
 #include <vector>
 
+
+namespace ast {
+using namespace ast;
+
 using ConstantValue = std::variant<int>;
 
 // any element executable code : Statement, Declaration, Expression, etc...
@@ -170,3 +174,5 @@ class FunctionDeclaration : public Declaration {
  private:
   std::vector<std::unique_ptr<Instruction>> _instructions;
 };
+
+}

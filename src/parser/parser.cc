@@ -7,13 +7,13 @@
 #include <string>
 #include <utility>
 
-std::unique_ptr<Program> Parser::ParseProgram() {
-  auto program = std::make_unique<Program>();
+std::unique_ptr<ast::Program> Parser::ParseProgram() {
+  auto program = std::make_unique<ast::Program>();
   _current_token_index = -2;
   ConsumeToken();
   ConsumeToken();
 
-  std::unique_ptr<Instruction> instr = ParseInstruction();
+  std::unique_ptr<ast::Instruction> instr = ParseInstruction();
   program->add_instruction(std::move(instr));
 
   return program;
@@ -32,9 +32,9 @@ int Parser::Precedence(TokenType tok) {
                                 StringTokenType(tok) + " instead");
 }
 
-std::unique_ptr<Expression> Parser::ParseExpression(int precedenceLimit) {
+std::unique_ptr<ast::Expression> Parser::ParseExpression(int precedenceLimit) {
 
-  std::unique_ptr<Expression> left = ParsePrefix();
+  std::unique_ptr<ast::Expression> left = ParsePrefix();
 
   while (_current_token.type != TokenType::kEof or
          _current_token.type != TokenType::kIllegal) {
@@ -49,8 +49,8 @@ std::unique_ptr<Expression> Parser::ParseExpression(int precedenceLimit) {
     if (prec > precedenceLimit) {
       TokenType op = _current_token.type;
       ConsumeToken();
-      std::unique_ptr<Expression> right = ParseExpression(prec);
-      left = std::make_unique<BinaryExpression>(op, std::move(left),
+      std::unique_ptr<ast::Expression> right = ParseExpression(prec);
+      left = std::make_unique<ast::BinaryExpression>(op, std::move(left),
              std::move(right));
     } else
       return left;
@@ -59,10 +59,10 @@ std::unique_ptr<Expression> Parser::ParseExpression(int precedenceLimit) {
   return left;
 }
 
-std::unique_ptr<Expression> Parser::ParsePrefix() {
+std::unique_ptr<ast::Expression> Parser::ParsePrefix() {
   TokenType prefix_type;
-  std::unique_ptr<PrefixExpression> prefix;
-  std::unique_ptr<Expression> expr;
+  std::unique_ptr<ast::PrefixExpression> prefix;
+  std::unique_ptr<ast::Expression> expr;
 
   if (_current_token.type == TokenType::kMinus) {
     prefix_type = TokenType::kMinus;
@@ -71,7 +71,7 @@ std::unique_ptr<Expression> Parser::ParsePrefix() {
     // get rest of the expression
     expr = ParseExpression(Precedence(prefix_type));
 
-    prefix = std::make_unique<PrefixExpression>(prefix_type, std::move(expr));
+    prefix = std::make_unique<ast::PrefixExpression>(prefix_type, std::move(expr));
 
     return prefix;
 
@@ -81,12 +81,12 @@ std::unique_ptr<Expression> Parser::ParsePrefix() {
 
     expr = ParseExpression(Precedence(prefix_type));
 
-    prefix = std::make_unique<PrefixExpression>(prefix_type, std::move(expr));
+    prefix = std::make_unique<ast::PrefixExpression>(prefix_type, std::move(expr));
 
     return prefix;
 
   } else if (_current_token.type == TokenType::kNumber) {
-    auto res = std::make_unique<Constant>(std::stoi(_current_token.value));
+    auto res = std::make_unique<ast::Constant>(std::stoi(_current_token.value));
     ConsumeToken();
     return res;
   } else if (_current_token.type == TokenType::kLeftParenthesis) {
@@ -100,12 +100,12 @@ std::unique_ptr<Expression> Parser::ParsePrefix() {
   }
 }
 
-std::unique_ptr<ReturnStatement> Parser::ParseReturnStatement() {
+std::unique_ptr<ast::ReturnStatement> Parser::ParseReturnStatement() {
   ConsumeToken();
 
-  std::unique_ptr<Expression> res = ParseExpression(0);
+  std::unique_ptr<ast::Expression> res = ParseExpression(0);
 
-  auto return_statement = std::make_unique<ReturnStatement>(std::move(res));
+  auto return_statement = std::make_unique<ast::ReturnStatement>(std::move(res));
 
   CheckCurToken(TokenType::kSemiColon);
 
@@ -120,16 +120,16 @@ void Parser::ParseFunctionArguments() {
   ConsumeToken();
 }
 
-std::unique_ptr<FunctionDeclaration>
+std::unique_ptr<ast::FunctionDeclaration>
 Parser::ParseFunctionDeclaration(Type declaration_type,
-                                 std::unique_ptr<Identifier> ident) {
+                                 std::unique_ptr<ast::Identifier> ident) {
 
   auto function =
-      std::make_unique<FunctionDeclaration>(std::move(ident), declaration_type);
+      std::make_unique<ast::FunctionDeclaration>(std::move(ident), declaration_type);
 
   ParseFunctionArguments();
 
-  std::unique_ptr<Instruction> function_instruction = ParseInstruction();
+  std::unique_ptr<ast::Instruction> function_instruction = ParseInstruction();
   function->add_instruction(std::move(function_instruction));
 
   while (_current_token.type != TokenType::kRightBracket) {
@@ -142,14 +142,15 @@ Parser::ParseFunctionDeclaration(Type declaration_type,
   return function;
 }
 
-std::unique_ptr<Declaration> Parser::ParseDeclaration(Type declaration_type) {
+std::unique_ptr<ast::Declaration> Parser::ParseDeclaration(
+    Type declaration_type) {
   ExpectToken(TokenType::kIdentifier);
 
-  auto ident = std::make_unique<Identifier>(_current_token.value);
-  std::unique_ptr<Declaration> instr;
+  auto ident = std::make_unique<ast::Identifier>(_current_token.value);
+  std::unique_ptr<ast::Declaration> instr;
 
   if (_next_token.type == TokenType::kEqual) {
-    instr = std::make_unique<Declaration>(std::move(ident), declaration_type);
+    instr = std::make_unique<ast::Declaration>(std::move(ident), declaration_type);
     ConsumeToken();
 
     switch (declaration_type) {
@@ -173,7 +174,7 @@ std::unique_ptr<Declaration> Parser::ParseDeclaration(Type declaration_type) {
   return instr;
 }
 
-std::unique_ptr<Instruction> Parser::ParseInstruction() {
+std::unique_ptr<ast::Instruction> Parser::ParseInstruction() {
   switch (_current_token.type) {
     case TokenType::kReturn:
       return ParseReturnStatement();

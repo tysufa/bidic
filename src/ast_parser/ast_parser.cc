@@ -2,8 +2,6 @@
 #include "ast.hh"
 #include "scug.hh"
 #include "token.hh"
-#include <algorithm>
-#include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -17,13 +15,13 @@ std::string MakeTemporaryVariableName() {
 
 std::unique_ptr<scug::Expression> ParseAstExpression(
     scug::FunctionDeclaration* scug,
-    const std::unique_ptr<Expression>& expr) {
+    const std::unique_ptr<ast::Expression>& expr) {
 
-  auto constant = dynamic_cast<Constant const*>(expr.get());
+  auto constant = dynamic_cast<ast::Constant const*>(expr.get());
 
   if (constant) {
     // we get the value of the constant
-    std::unique_ptr<ConstantValue> constant_val = constant->Evaluate();
+    std::unique_ptr<ast::ConstantValue> constant_val = constant->Evaluate();
 
     // we check the different possible value types (int, str...)
     if (int* int_val = std::get_if<int>(constant_val.get())) {
@@ -32,7 +30,7 @@ std::unique_ptr<scug::Expression> ParseAstExpression(
       throw std::runtime_error("Constant is of unexpected type");
   }
 
-  auto unary = dynamic_cast<PrefixExpression const*>(expr.get());
+  auto unary = dynamic_cast<ast::PrefixExpression const*>(expr.get());
 
   if (unary) {
     auto src = ParseAstExpression(std::move(scug), unary->expression_value());
@@ -50,7 +48,7 @@ std::unique_ptr<scug::Expression> ParseAstExpression(
     return std::make_unique<scug::Variable>(variable_name);
   }
 
-  auto binary = dynamic_cast<BinaryExpression const*>(expr.get());
+  auto binary = dynamic_cast<ast::BinaryExpression const*>(expr.get());
 
   if (binary) {
     auto src1 = ParseAstExpression(std::move(scug), binary->left());
@@ -95,23 +93,23 @@ std::unique_ptr<scug::Expression> ParseAstExpression(
     throw std::runtime_error("expected Constant or Prefix");
 }
 
-std::unique_ptr<scug::Program> eval(std::unique_ptr<Program> ast) {
+std::unique_ptr<scug::Program> eval(std::unique_ptr<ast::Program> ast) {
   auto scug = std::make_unique<scug::Program>();
 
-  const std::vector<std::unique_ptr<Instruction>>& instruction = ast->instructions();
+  const std::vector<std::unique_ptr<ast::Instruction>>& instruction = ast->instructions();
 
 
-  if (auto function = dynamic_cast<FunctionDeclaration const*>
+  if (auto function = dynamic_cast<ast::FunctionDeclaration const*>
                       (instruction[0].get())) {
 
     // creating nast Function
     auto ident = std::make_unique<scug::Identifier>(function->identifier()->name());
     auto nasm_func = std::make_unique<scug::FunctionDeclaration>(std::move(ident));
 
-    if (auto ret = dynamic_cast<ReturnStatement const*>
+    if (auto ret = dynamic_cast<ast::ReturnStatement const*>
                    (function->instructions()[0].get())) {
 
-      const std::unique_ptr<Expression>& return_expression = ret->return_value();
+      const std::unique_ptr<ast::Expression>& return_expression = ret->return_value();
 
       // ParseAstExpression() should return a Constant or a Variable
       auto nast_return_expr = ParseAstExpression(nasm_func.get(), return_expression);
