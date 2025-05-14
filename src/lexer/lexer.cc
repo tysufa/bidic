@@ -37,7 +37,7 @@ std::vector<Token> Lexer::Tokens() {
   Token current_token = {.type = TokenType::kIdentifier, .value = ""};
 
   std::string s;
-  // initialisation of _current_ch and _next_ch and put _position at 0;
+  // initialization of _current_ch and _next_ch and put _position at 0;
   _position = -2;
   NextChar();
   NextChar();
