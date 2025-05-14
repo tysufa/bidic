@@ -1,7 +1,7 @@
 #include "ast_parser.hh"
 #include "emission.hh"
 #include "lexer.hh"
-#include "nast.hh"
+#include "scug.hh"
 #include "parser.hh"
 #include "token.hh"
 #include <gtest/gtest.h>
@@ -17,11 +17,11 @@ TEST(EmitorTest, BasicProgramTest) {
 
   Parser parser(tokens);
 
-  std::unique_ptr<scug::Program> nast;
+  std::unique_ptr<scug::Program> scug;
   // the std::move is automatic
-  nast = eval(parser.ParseProgram());
+  scug = eval(parser.ParseProgram());
 
-  Emitor emitor(std::move(nast));
+  Emitor emitor(std::move(scug));
   std::string res = emitor.Emit();
 
   std::string expected_res = R"(.test
@@ -41,11 +41,11 @@ TEST(EmitorTest, UnaryOperator) {
 
   Parser parser(tokens);
 
-  std::unique_ptr<scug::Program> nast;
+  std::unique_ptr<scug::Program> scug;
   // the std::move is automatic
-  nast = eval(parser.ParseProgram());
+  scug = eval(parser.ParseProgram());
 
-  Emitor emitor(std::move(nast));
+  Emitor emitor(std::move(scug));
   std::string res = emitor.Emit();
 
   std::string expected_res = R"(.test
@@ -68,11 +68,11 @@ TEST(EmitorTest, MultipleUnaryOperators) {
 
   Parser parser(tokens);
 
-  std::unique_ptr<scug::Program> nast;
+  std::unique_ptr<scug::Program> scug;
   // the std::move is automatic
-  nast = eval(parser.ParseProgram());
+  scug = eval(parser.ParseProgram());
 
-  Emitor emitor(std::move(nast));
+  Emitor emitor(std::move(scug));
   std::string res = emitor.Emit();
 
   std::string expected_res = R"(.test

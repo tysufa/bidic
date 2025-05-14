@@ -1,5 +1,5 @@
 #include "emission.hh"
-#include "nast.hh"
+#include "scug.hh"
 #include <iostream>
 #include <memory>
 #include <string>

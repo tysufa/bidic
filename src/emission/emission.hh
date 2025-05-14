@@ -1,5 +1,5 @@
 #pragma once
-#include "../nast/nast.hh"
+#include "../scug/scug.hh"
 #include <memory>
 #include <string>
 #include <unordered_map>

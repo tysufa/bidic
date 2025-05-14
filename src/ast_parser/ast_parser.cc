@@ -1,6 +1,6 @@
 #include "ast_parser.hh"
 #include "ast.hh"
-#include "nast.hh"
+#include "scug.hh"
 #include "token.hh"
 #include <algorithm>
 #include <iostream>
@@ -16,7 +16,7 @@ std::string MakeTemporaryVariableName() {
 }
 
 std::unique_ptr<scug::Expression> ParseAstExpression(
-    scug::FunctionDeclaration* nast,
+    scug::FunctionDeclaration* scug,
     const std::unique_ptr<Expression>& expr) {
 
   auto constant = dynamic_cast<Constant const*>(expr.get());
@@ -35,7 +35,7 @@ std::unique_ptr<scug::Expression> ParseAstExpression(
   auto unary = dynamic_cast<PrefixExpression const*>(expr.get());
 
   if (unary) {
-    auto src = ParseAstExpression(std::move(nast), unary->expression_value());
+    auto src = ParseAstExpression(std::move(scug), unary->expression_value());
 
     std::string variable_name = MakeTemporaryVariableName();
     auto dst = std::make_unique<scug::Variable>(variable_name);
@@ -43,7 +43,7 @@ std::unique_ptr<scug::Expression> ParseAstExpression(
     UnaryOperation op = (unary->prefix_type() == TokenType::kMinus ?
                          UnaryOperation::kNegate : UnaryOperation::kComplement);
 
-    nast->add_instruction(std::make_unique<scug::Unary>(op, std::move(src),
+    scug->add_instruction(std::make_unique<scug::Unary>(op, std::move(src),
                           std::move(dst)));
 
     // we can't use dst again since we moved it into our Unary operator
@@ -53,8 +53,8 @@ std::unique_ptr<scug::Expression> ParseAstExpression(
   auto binary = dynamic_cast<BinaryExpression const*>(expr.get());
 
   if (binary) {
-    auto src1 = ParseAstExpression(std::move(nast), binary->left());
-    auto src2 = ParseAstExpression(std::move(nast), binary->right());
+    auto src1 = ParseAstExpression(std::move(scug), binary->left());
+    auto src2 = ParseAstExpression(std::move(scug), binary->right());
 
     std::string variable_name = MakeTemporaryVariableName();
     auto dst = std::make_unique<scug::Variable>(variable_name);
@@ -85,7 +85,7 @@ std::unique_ptr<scug::Expression> ParseAstExpression(
         break;
     }
 
-    nast->add_instruction(std::make_unique<scug::Binary>(op, std::move(src1),
+    scug->add_instruction(std::make_unique<scug::Binary>(op, std::move(src1),
                           std::move(src2), std::move(dst)));
 
     return std::make_unique<scug::Variable>(variable_name);
@@ -96,7 +96,7 @@ std::unique_ptr<scug::Expression> ParseAstExpression(
 }
 
 std::unique_ptr<scug::Program> eval(std::unique_ptr<Program> ast) {
-  auto nast = std::make_unique<scug::Program>();
+  auto scug = std::make_unique<scug::Program>();
 
   const std::vector<std::unique_ptr<Instruction>>& instruction = ast->instructions();
 
@@ -118,9 +118,9 @@ std::unique_ptr<scug::Program> eval(std::unique_ptr<Program> ast) {
 
       nasm_func->add_instruction(std::make_unique<scug::Return>(std::move(
                                      nast_return_expr)));
-      nast->add_instruction(std::move(nasm_func));
+      scug->add_instruction(std::move(nasm_func));
     }
   }
 
-  return nast;
+  return scug;
 }

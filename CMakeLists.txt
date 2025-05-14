@@ -37,21 +37,21 @@ target_include_directories(Parser PUBLIC
 
 target_link_libraries(Parser PRIVATE Ast)
 
-# --- Nast Library (Header only) ---
-add_library(Nast INTERFACE)
+# --- Scug Library (Header only) ---
+add_library(Scug INTERFACE)
 
-target_include_directories(Nast INTERFACE
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/nast
+target_include_directories(Scug INTERFACE
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/scug
 )
 
-# --- Nast Library (Header only) ---
+# --- Ast_parser Library (Header only) ---
 add_library(Ast_parser STATIC
   src/ast_parser/ast_parser.cc  
 )
 
 target_include_directories(Ast_parser PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ast_parser
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/nast
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/scug
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ast
   ${CMAKE_CURRENT_SOURCE_DIR}/src/lexer
 )
@@ -62,7 +62,7 @@ add_library(Emitor STATIC
 )
 
 target_include_directories(Emitor PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/nast
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/scug
   ${CMAKE_CURRENT_SOURCE_DIR}/src/emission
 )
 
@@ -99,10 +99,10 @@ target_link_libraries(LexerTests GTest::gtest_main Lexer)
 
 target_link_libraries(ParserTests GTest::gtest_main Lexer Ast Parser)
 
-target_link_libraries(AstParserTests GTest::gtest_main Lexer Ast Parser Nast
+target_link_libraries(AstParserTests GTest::gtest_main Lexer Ast Parser Scug
   Ast_parser)
 
-target_link_libraries(EmitorTests GTest::gtest_main Lexer Ast Parser Nast Emitor
+target_link_libraries(EmitorTests GTest::gtest_main Lexer Ast Parser Scug Emitor
   Ast_parser)
 
 include(GoogleTest)

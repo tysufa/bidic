@@ -2,7 +2,7 @@
 #include "token.hh"
 #include "parser.hh"
 #include "ast.hh"
-#include "nast.hh"
+#include "scug.hh"
 #include "ast_parser.hh"
 #include <iostream>
 #include <memory>
