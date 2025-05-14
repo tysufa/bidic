@@ -51,10 +51,9 @@ std::unique_ptr<Expression> Parser::ParseExpression(int precedenceLimit) {
       ConsumeToken();
       std::unique_ptr<Expression> right = ParseExpression(prec);
       left = std::make_unique<BinaryExpression>(op, std::move(left),
-                                                std::move(right));
-    } else {
+             std::move(right));
+    } else
       return left;
-    }
   }
 
   return left;
@@ -87,7 +86,7 @@ std::unique_ptr<Expression> Parser::ParsePrefix() {
     return prefix;
 
   } else if (_current_token.type == TokenType::kNumber) {
-    auto res = std::make_unique<IntExpression>(std::stoi(_current_token.value));
+    auto res = std::make_unique<Constant>(std::stoi(_current_token.value));
     ConsumeToken();
     return res;
   } else if (_current_token.type == TokenType::kLeftParenthesis) {
@@ -154,15 +153,15 @@ std::unique_ptr<Declaration> Parser::ParseDeclaration(Type declaration_type) {
     ConsumeToken();
 
     switch (declaration_type) {
-    case Type::kInt:
-      ExpectToken(TokenType::kNumber);
-      ExpectToken(TokenType::kSemiColon);
-      ConsumeToken();
-      break;
+      case Type::kInt:
+        ExpectToken(TokenType::kNumber);
+        ExpectToken(TokenType::kSemiColon);
+        ConsumeToken();
+        break;
 
-    default:
-      return nullptr;
-      break;
+      default:
+        return nullptr;
+        break;
     }
 
   } else if (_next_token.type == TokenType::kLeftParenthesis)
@@ -176,17 +175,17 @@ std::unique_ptr<Declaration> Parser::ParseDeclaration(Type declaration_type) {
 
 std::unique_ptr<Instruction> Parser::ParseInstruction() {
   switch (_current_token.type) {
-  case TokenType::kReturn:
-    return ParseReturnStatement();
-    break;
+    case TokenType::kReturn:
+      return ParseReturnStatement();
+      break;
 
-  case TokenType::kInt:
-    return ParseDeclaration(Type::kInt);
-    break;
+    case TokenType::kInt:
+      return ParseDeclaration(Type::kInt);
+      break;
 
-  default:
-    throw std::runtime_error("Expected instruction, got " +
-                             StringTokenType(_current_token.type) + " instead");
+    default:
+      throw std::runtime_error("Expected instruction, got " +
+                               StringTokenType(_current_token.type) + " instead");
   }
 }
 

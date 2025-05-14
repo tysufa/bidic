@@ -203,7 +203,8 @@ TEST(ParserTest, BinaryOperators) {
           const auto &left = p_bin->left();
           const auto &right = p_bin->right();
 
-          auto p_left = dynamic_cast<IntExpression const*>(left.get());
+          auto p_left = dynamic_cast<Constant const*>(left.get());
+          // auto p_left = dynamic_cast<IntExpression const*>(left.get());
           EXPECT_NE(p_left, nullptr);
 
           if (p_left)

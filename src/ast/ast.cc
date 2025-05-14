@@ -4,14 +4,6 @@
 #include <stdexcept>
 #include <string>
 
-std::string Constant::DebugResult() const {
-  if (const int* val = std::get_if<int>(&_value))
-    return std::to_string(*val);
-
-  else
-    return "Untreated type";
-}
-
 std::unique_ptr<ConstantValue> BinaryExpression::Evaluate() const {
   std::unique_ptr<ConstantValue> left = _left->Evaluate();
   std::unique_ptr<ConstantValue> right = _right->Evaluate();

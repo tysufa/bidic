@@ -19,7 +19,7 @@ std::unique_ptr<nast::Expression> ParseAstExpression(
     nast::FunctionDeclaration* nast,
     const std::unique_ptr<Expression>& expr) {
 
-  auto constant = dynamic_cast<IntExpression const*>(expr.get());
+  auto constant = dynamic_cast<Constant const*>(expr.get());
 
   if (constant) {
     // we get the value of the constant

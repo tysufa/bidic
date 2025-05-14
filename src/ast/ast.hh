@@ -35,20 +35,7 @@ class Identifier {
   std::string _name;
 };
 
-class Constant {
- public:
-  Constant(ConstantValue val)
-    : _value(val) {}
 
-  // for unit tests it's easier to quicly test a string that to convert the
-  // value to every possible type and test them
-  std::string DebugResult() const;
-
-  ConstantValue value() const {return _value;}
-
- private:
-  ConstantValue _value;
-};
 
 class Literal {
  public:
@@ -85,6 +72,18 @@ class Expression {
     else
       return "Untreated type";
   }
+};
+
+class Constant : public Expression {
+ public:
+  Constant(ConstantValue val)
+    : _value(val) {}
+
+  std::unique_ptr<ConstantValue> Evaluate() const override {return std::make_unique<ConstantValue>(_value);}
+  std::string ExpressionType() const override {return "Constant";}
+
+ private:
+  ConstantValue _value;
 };
 
 class IntExpression : public Expression {
