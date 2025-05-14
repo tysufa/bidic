@@ -23,10 +23,10 @@ std::unique_ptr<nast::Expression> ParseAstExpression(
 
   if (constant) {
     // we get the value of the constant
-    LiteralValue constant_val = constant->Evaluate()->value();
+    std::unique_ptr<ConstantValue> constant_val = constant->Evaluate();
 
     // we check the different possible value types (int, str...)
-    if (int* int_val = std::get_if<int>(&constant_val)) {
+    if (int* int_val = std::get_if<int>(constant_val.get())) {
       return std::make_unique<nast::Constant>(*int_val);  // Use the extracted int
     } else
       throw std::runtime_error("LiteralValue is of unexpected type");

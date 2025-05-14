@@ -19,7 +19,7 @@ TEST(ParserTest, BasicIntDeclaration) {
 
   ASSERT_EQ(instructions.size(), 1);
 
-  auto pDeclaration = dynamic_cast<Declaration const *>(instructions[0].get());
+  auto pDeclaration = dynamic_cast<Declaration const*>(instructions[0].get());
   EXPECT_EQ(instructions[0]->TypeInstruction(), "Declaration");
   EXPECT_NE(pDeclaration, nullptr) << "Expected non-null Declaration pointer";
 
@@ -45,7 +45,7 @@ TEST(ParserTest, BasicProgramTest) {
       p->instructions();
 
   auto pDeclaration =
-      dynamic_cast<FunctionDeclaration const *>(instructions[0].get());
+      dynamic_cast<FunctionDeclaration const*>(instructions[0].get());
 
   ASSERT_EQ(instructions.size(), 1);
 
@@ -62,14 +62,13 @@ TEST(ParserTest, BasicProgramTest) {
               "ReturnStatement");
 
     auto p_return_statement =
-        dynamic_cast<ReturnStatement *>(pDeclaration->instructions()[0].get());
+        dynamic_cast<ReturnStatement*>(pDeclaration->instructions()[0].get());
 
     EXPECT_NE(p_return_statement, nullptr)
         << "Expected non-null return statement pointer";
 
     if (p_return_statement)
-      EXPECT_EQ(p_return_statement->return_value()->Evaluate()->DebugResult(),
-                "0");
+      EXPECT_EQ(std::get<int>(*p_return_statement->return_value()->Evaluate()), 0);
   }
 }
 
@@ -88,7 +87,7 @@ TEST(ParserTest, UnaryOperator) {
         p->instructions();
 
     auto pDeclaration =
-        dynamic_cast<FunctionDeclaration const *>(instructions[0].get());
+        dynamic_cast<FunctionDeclaration const*>(instructions[0].get());
 
     ASSERT_EQ(instructions.size(), 1);
 
@@ -104,19 +103,18 @@ TEST(ParserTest, UnaryOperator) {
       EXPECT_EQ(pDeclaration->instructions()[0]->TypeInstruction(),
                 "ReturnStatement");
 
-      auto p_return_statement = dynamic_cast<ReturnStatement *>(
-          pDeclaration->instructions()[0].get());
+      auto p_return_statement = dynamic_cast<ReturnStatement*>(
+                                    pDeclaration->instructions()[0].get());
 
       EXPECT_NE(p_return_statement, nullptr)
           << "Expected non-null return statement pointer";
 
       if (p_return_statement) {
-        auto p_prefix_expr = dynamic_cast<PrefixExpression const *>(
-            p_return_statement->return_value().get());
+        auto p_prefix_expr = dynamic_cast<PrefixExpression const*>(
+                                 p_return_statement->return_value().get());
         EXPECT_NE(p_prefix_expr, nullptr)
             << "Expected non-null PrefixExpression pointer";
-        EXPECT_EQ(p_return_statement->return_value()->Evaluate()->DebugResult(),
-                  "-1");
+        EXPECT_EQ(std::get<int>(*p_return_statement->return_value()->Evaluate()), -1);
       }
     }
   }
@@ -134,23 +132,22 @@ TEST(ParserTest, UnaryOperator) {
         p->instructions();
 
     auto pDeclaration =
-        dynamic_cast<FunctionDeclaration const *>(instructions[0].get());
+        dynamic_cast<FunctionDeclaration const*>(instructions[0].get());
 
     ASSERT_EQ(instructions.size(), 1);
 
-    auto p_return_statement = dynamic_cast<ReturnStatement const *>(
-        pDeclaration->instructions()[0].get());
+    auto p_return_statement = dynamic_cast<ReturnStatement const*>(
+                                  pDeclaration->instructions()[0].get());
 
     EXPECT_NE(p_return_statement, nullptr)
         << "Expected non-null return statement pointer";
 
     if (p_return_statement) {
-      auto p_prefix_expr = dynamic_cast<PrefixExpression const *>(
-          p_return_statement->return_value().get());
+      auto p_prefix_expr = dynamic_cast<PrefixExpression const*>(
+                               p_return_statement->return_value().get());
       EXPECT_NE(p_prefix_expr, nullptr)
           << "Expected non-null PrefixExpression pointer";
-      EXPECT_EQ(p_return_statement->return_value()->Evaluate()->DebugResult(),
-                "2");
+      EXPECT_EQ(std::get<int>(*p_return_statement->return_value()->Evaluate()), 2);
     }
   }
 }
@@ -174,7 +171,7 @@ TEST(ParserTest, BinaryOperators) {
     EXPECT_EQ(instructions[0]->TypeInstruction(), "FunctionDeclaration");
 
     auto p_function =
-        dynamic_cast<FunctionDeclaration const *>(instructions[0].get());
+        dynamic_cast<FunctionDeclaration const*>(instructions[0].get());
 
     EXPECT_NE(p_function, nullptr) << "Expected non-null Declaration pointer";
 
@@ -188,7 +185,7 @@ TEST(ParserTest, BinaryOperators) {
                 "ReturnStatement");
 
       auto p_return_statement =
-          dynamic_cast<ReturnStatement *>(p_function->instructions()[0].get());
+          dynamic_cast<ReturnStatement*>(p_function->instructions()[0].get());
 
       EXPECT_NE(p_return_statement, nullptr)
           << "Expected non-null return statement pointer";
@@ -196,29 +193,33 @@ TEST(ParserTest, BinaryOperators) {
       if (p_return_statement) {
         const auto &return_value = p_return_statement->return_value();
 
-        auto p_bin = dynamic_cast<BinaryExpression const *>(return_value.get());
+        auto p_bin = dynamic_cast<BinaryExpression const*>(return_value.get());
         EXPECT_NE(p_bin, nullptr);
+
         if (p_bin) {
+          EXPECT_EQ(std::get<int>(*p_bin->Evaluate()), 7);
+
           EXPECT_EQ(p_bin->operation(), TokenType::kPlus);
           const auto &left = p_bin->left();
           const auto &right = p_bin->right();
 
-          auto p_left = dynamic_cast<IntExpression const *>(left.get());
+          auto p_left = dynamic_cast<IntExpression const*>(left.get());
           EXPECT_NE(p_left, nullptr);
-          if (p_left) {
-            EXPECT_EQ(p_left->Evaluate()->DebugResult(), "1");
-          }
 
-          auto p_right = dynamic_cast<BinaryExpression const *>(right.get());
+          if (p_left)
+            EXPECT_EQ(std::get<int>(*p_left->Evaluate()), 1);
+
+          auto p_right = dynamic_cast<BinaryExpression const*>(right.get());
           EXPECT_NE(p_right, nullptr);
+
           if (p_right) {
             EXPECT_EQ(p_right->operation(), TokenType::kStar);
 
-            EXPECT_NE(p_right->right(), nullptr);
-            EXPECT_EQ(p_right->right()->Evaluate()->DebugResult(), "3");
-
             EXPECT_NE(p_right->left(), nullptr);
-            EXPECT_EQ(p_right->left()->Evaluate()->DebugResult(), "2");
+            EXPECT_EQ(std::get<int>(*p_right->left()->Evaluate()), 2);
+
+            EXPECT_NE(p_right->right(), nullptr);
+            EXPECT_EQ(std::get<int>(*p_right->right()->Evaluate()), 3);
           }
         }
       }
