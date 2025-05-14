@@ -6,7 +6,6 @@
 #include <variant>
 #include <vector>
 
-using LiteralValue = std::variant<int, float, std::string>;
 using ConstantValue = std::variant<int>;
 
 // any element executable code : Statement, Declaration, Expression, etc...
@@ -37,24 +36,6 @@ class Identifier {
 
 
 
-class Literal {
- public:
-  virtual std::string DebugResult() const = 0;
-
-  virtual LiteralValue value() const = 0;
-};
-
-class IntLiteral : public Literal {
- public:
-  IntLiteral(int val) : _value(val) {}
-
-  std::string DebugResult() const override { return std::to_string(_value); }
-
-  LiteralValue value() const override { return _value; }
-
- private:
-  int _value;
-};
 
 // combination of variables, constants, operators and function calls that
 // evaluate to a single value
@@ -86,19 +67,6 @@ class Constant : public Expression {
   ConstantValue _value;
 };
 
-class IntExpression : public Expression {
- public:
-  IntExpression(int value) : _value(value) {}
-
-  std::unique_ptr<ConstantValue> Evaluate() const override {
-    return std::make_unique<ConstantValue>(_value);
-  };
-
-  std::string ExpressionType() const override { return "Int"; }
-
- private:
-  int _value;
-};
 
 class BinaryExpression : public Expression {
  public:

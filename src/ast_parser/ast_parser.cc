@@ -29,7 +29,7 @@ std::unique_ptr<nast::Expression> ParseAstExpression(
     if (int* int_val = std::get_if<int>(constant_val.get())) {
       return std::make_unique<nast::Constant>(*int_val);  // Use the extracted int
     } else
-      throw std::runtime_error("LiteralValue is of unexpected type");
+      throw std::runtime_error("Constant is of unexpected type");
   }
 
   auto unary = dynamic_cast<PrefixExpression const*>(expr.get());
@@ -51,7 +51,7 @@ std::unique_ptr<nast::Expression> ParseAstExpression(
   }
 
   else
-    throw std::runtime_error("expected LiteralExpression or PrefixExpression");
+    throw std::runtime_error("expected Constant or Prefix");
 }
 
 std::unique_ptr<nast::Program> eval(std::unique_ptr<Program> ast) {
