@@ -83,10 +83,10 @@ enable_testing()
 
 # --- Manual Test Executable ---
 add_executable(LexerTests
-  tests/lexer/TestLexer.cpp
+  tests/lexer/test_lexer.cpp
 )
 add_executable(ParserTests
-  tests/parser/TestParser.cpp
+  tests/parser/test_parser.cpp
 )
 add_executable(AstParserTests
   tests/ast_parser/test_ast_parser.cpp
