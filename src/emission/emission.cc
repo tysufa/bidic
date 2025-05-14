@@ -17,6 +17,14 @@ std::string Emitor::ReplacePseudoRegister(const std::string& pseudo_reg) {
   }
 }
 
+std::string Emitor::ExpressionToStr(const std::unique_ptr<scug::Expression>&
+                                    expr) {
+  if (const auto& var = dynamic_cast<scug::Variable const*>(expr.get()))
+    return ReplacePseudoRegister(var->name());
+  else
+    return std::to_string(expr->Evaluate());
+}
+
 std::string Emitor::Emit() {
   std::string result;
 
@@ -31,6 +39,7 @@ std::string Emitor::Emit() {
   const scug::Return* p_return;
   scug::FunctionDeclaration* p_function;
   const scug::Unary* p_unary;
+  const scug::Binary* p_binary;
 
   while (_current_instruction < _instructions.size()) {
     p_return = dynamic_cast<scug::Return const*>
@@ -42,7 +51,49 @@ std::string Emitor::Emit() {
     p_unary = dynamic_cast<scug::Unary const*>(
                   _instructions[_current_instruction].get());
 
-    if (p_unary) {
+    p_binary = dynamic_cast<scug::Binary const*>(
+                   _instructions[_current_instruction].get());
+
+    if (p_binary) {
+      auto src_variable_1 = dynamic_cast<scug::Variable const*>
+                            (p_binary->src1().get());
+      auto src_variable_2 = dynamic_cast<scug::Variable const*>
+                            (p_binary->src2().get());
+
+      if (p_binary->binary_operation() != BinaryOperation::kDivide) {
+
+        switch (p_binary->binary_operation()) {
+          case BinaryOperation::kPlus:
+            if (src_variable_2) {
+              result += indent + "mov " + ReplacePseudoRegister(p_binary->dst()->name()) +
+                        ", "  + ExpressionToStr(p_binary->src2()) + "\n";
+              result += indent + "add " + ReplacePseudoRegister(p_binary->dst()->name()) +
+                        ", " + ExpressionToStr(p_binary->src1()) + "\n";
+            } else if (src_variable_1) {
+              result += indent + "mov " + ReplacePseudoRegister(p_binary->dst()->name()) +
+                        ", "  + ExpressionToStr(p_binary->src1()) + "\n";
+              result += indent + "add " + ReplacePseudoRegister(p_binary->dst()->name()) +
+                        ", " + ExpressionToStr(p_binary->src2()) + "\n";
+            } else {
+              result += indent + "mov " + ReplacePseudoRegister(p_binary->dst()->name()) +
+                        ", " + ExpressionToStr(p_binary->src1()) + "\n";
+              result += indent + "add " + ReplacePseudoRegister(p_binary->dst()->name()) +
+                        ", " + ExpressionToStr(p_binary->src2()) + "\n";
+            }
+
+            break;
+
+          case BinaryOperation::kMultply:
+            result += indent + "mov " + ReplacePseudoRegister(p_binary->dst()->name()) +
+                      ", " + ExpressionToStr(p_binary->src1()) + "\n";
+            result += indent + "imul " + ReplacePseudoRegister(p_binary->dst()->name()) +
+                      ", " + ExpressionToStr(p_binary->src2()) + "\n";
+            break;
+        }
+
+      }
+
+    } else if (p_unary) {
       auto src_variable = dynamic_cast<scug::Variable const*>(p_unary->src().get());
 
 

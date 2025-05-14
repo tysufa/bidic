@@ -86,3 +86,32 @@ TEST(EmitorTest, MultipleUnaryOperators) {
 
   EXPECT_EQ(res, expected_res);
 }
+
+TEST(EmitorTest, BinaryOperators) {
+  std::string input = R"(int test(){
+    return 1+2*3;
+    })";
+  Lexer lexer(input);
+  std::vector<Token> tokens = lexer.Tokens();
+
+  Parser parser(tokens);
+
+  std::unique_ptr<scug::Program> scug;
+  // the std::move is automatic
+  scug = eval(parser.ParseProgram());
+
+  Emitor emitor(std::move(scug));
+  std::string res = emitor.Emit();
+
+  std::string expected_res = R"(.test
+  mov [ebp-4], 2
+  imul [ebp-4], 3
+  mov [ebp-8], [ebp-4]
+  add [ebp-8], 1
+  mov eax, [ebp-8]
+  ret
+)";
+
+  EXPECT_EQ(res, expected_res);
+}
+
