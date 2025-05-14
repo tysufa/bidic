@@ -7,6 +7,7 @@
 enum class Register { eax, ebx, ecx, edx, ebp, esp, esi, edi };
 
 enum class UnaryOperation {kNegate, kComplement};
+enum class BinaryOperation {kMinus, kPlus, kDivide, kMultply, kModulo};
 
 inline std::string RegisterToString(Register r) {
   static const char* names[] = {"eax", "ebx", "ecx", "edx",
@@ -15,8 +16,8 @@ inline std::string RegisterToString(Register r) {
   return names[static_cast<int>(r)]; // 'value' is the enum's underlying integer
 }
 
-namespace nast {
-using namespace nast;
+namespace scug {
+using namespace scug;
 
 
 class Expression {
@@ -76,7 +77,7 @@ class Program {
   std::vector<std::unique_ptr<Instruction>> instructions() {
     return std::move(_instructions);
   }
-  void add_instruction(std::unique_ptr<nast::Instruction> instruction) {
+  void add_instruction(std::unique_ptr<scug::Instruction> instruction) {
     _instructions.push_back(std::move(instruction));
   }
 
@@ -94,7 +95,7 @@ class Identifier {
   std::string _name;
 };
 
-class FunctionDeclaration : public nast::Instruction {
+class FunctionDeclaration : public scug::Instruction {
  public:
   FunctionDeclaration(std::unique_ptr<Identifier> ident)
     : _identifier(std::move(ident)) {}
@@ -103,7 +104,7 @@ class FunctionDeclaration : public nast::Instruction {
     return "FunctionDeclaration";
   };
 
-  std::vector<std::unique_ptr<nast::Instruction>> instructions() {
+  std::vector<std::unique_ptr<scug::Instruction>> instructions() {
     return std::move(_instructions);
   }
 
@@ -151,6 +152,25 @@ class Return : public Instruction {
 
  private:
   std::unique_ptr<Expression> _return_value;
+};
+
+class Binary : public Instruction{
+ public:
+  Binary(BinaryOperation binary_op, std::unique_ptr<Expression> src1, std::unique_ptr<Expression> src2, std::unique_ptr<Variable> dst)
+    : _binary_operation(binary_op), _src1(std::move(src1)), _src2(std::move(src2)), _dst(std::move(dst)) {}
+
+  BinaryOperation binary_operation() const {return _binary_operation;}
+  const std::unique_ptr<Variable>& dst() const {return _dst;}
+  const std::unique_ptr<Expression>& src1() const {return _src1;}
+  const std::unique_ptr<Expression>& src2() const {return _src2;}
+
+  std::string TypeInstruction() const override {return "Binary";};
+
+ private:
+  std::unique_ptr<Expression> _src1;
+  std::unique_ptr<Expression> _src2;
+  std::unique_ptr<Variable> _dst;
+  BinaryOperation _binary_operation;
 };
 
 class Unary : public Instruction{

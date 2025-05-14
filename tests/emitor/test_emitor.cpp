@@ -17,7 +17,7 @@ TEST(EmitorTest, BasicProgramTest) {
 
   Parser parser(tokens);
 
-  std::unique_ptr<nast::Program> nast;
+  std::unique_ptr<scug::Program> nast;
   // the std::move is automatic
   nast = eval(parser.ParseProgram());
 
@@ -41,7 +41,7 @@ TEST(EmitorTest, UnaryOperator) {
 
   Parser parser(tokens);
 
-  std::unique_ptr<nast::Program> nast;
+  std::unique_ptr<scug::Program> nast;
   // the std::move is automatic
   nast = eval(parser.ParseProgram());
 
@@ -68,7 +68,7 @@ TEST(EmitorTest, MultipleUnaryOperators) {
 
   Parser parser(tokens);
 
-  std::unique_ptr<nast::Program> nast;
+  std::unique_ptr<scug::Program> nast;
   // the std::move is automatic
   nast = eval(parser.ParseProgram());
 

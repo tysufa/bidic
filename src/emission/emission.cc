@@ -17,7 +17,6 @@ std::string Emitor::ReplacePseudoRegister(const std::string& pseudo_reg) {
   }
 }
 
-
 std::string Emitor::Emit() {
   std::string result;
 
@@ -29,22 +28,22 @@ std::string Emitor::Emit() {
     _instructions.push_back(std::move(instr[i]));
 
   std::string indent = "";
-  const nast::Return* p_return;
-  nast::FunctionDeclaration* p_function;
-  const nast::Unary* p_unary;
+  const scug::Return* p_return;
+  scug::FunctionDeclaration* p_function;
+  const scug::Unary* p_unary;
 
   while (_current_instruction < _instructions.size()) {
-    p_return = dynamic_cast<nast::Return const*>
+    p_return = dynamic_cast<scug::Return const*>
                (_instructions[_current_instruction].get());
 
-    p_function = dynamic_cast<nast::FunctionDeclaration*>(
+    p_function = dynamic_cast<scug::FunctionDeclaration*>(
                      _instructions[_current_instruction].get());
 
-    p_unary = dynamic_cast<nast::Unary const*>(
+    p_unary = dynamic_cast<scug::Unary const*>(
                   _instructions[_current_instruction].get());
 
     if (p_unary) {
-      auto src_variable = dynamic_cast<nast::Variable const*>(p_unary->src().get());
+      auto src_variable = dynamic_cast<scug::Variable const*>(p_unary->src().get());
 
 
       if (src_variable)
@@ -58,10 +57,10 @@ std::string Emitor::Emit() {
                           "neg " : "not ") + ReplacePseudoRegister(p_unary->dst()->name()) + "\n";
 
     } else if (p_return) {
-      auto constant_ret_val = dynamic_cast<nast::Constant const*>
+      auto constant_ret_val = dynamic_cast<scug::Constant const*>
                               (p_return->return_value().get());
 
-      auto variable_ret_val = dynamic_cast<nast::Variable const*>
+      auto variable_ret_val = dynamic_cast<scug::Variable const*>
                               (p_return->return_value().get());
 
       if (constant_ret_val)

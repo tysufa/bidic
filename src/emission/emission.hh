@@ -7,7 +7,7 @@
 
 class Emitor {
  public:
-  Emitor(std::unique_ptr<nast::Program> program)
+  Emitor(std::unique_ptr<scug::Program> program)
     : _program(std::move(program)), _current_instruction(0),
       _current_stack_placement(0) {}
   std::string Emit();
@@ -18,8 +18,8 @@ class Emitor {
   int _current_stack_placement;
 
   int _current_instruction;
-  std::vector<std::unique_ptr<nast::Instruction>> _instructions;
+  std::vector<std::unique_ptr<scug::Instruction>> _instructions;
 
-  std::unique_ptr<nast::Program> _program;
+  std::unique_ptr<scug::Program> _program;
   std::unordered_map<std::string, std::string> _registers;
 };

@@ -4,7 +4,7 @@
 #include <memory>
 
 std::string MakeTemporaryVariableName();
-std::unique_ptr<nast::Expression> ParseAstExpression(
-    nast::FunctionDeclaration* nast,
+std::unique_ptr<scug::Expression> ParseAstExpression(
+    scug::FunctionDeclaration* nast,
     const std::unique_ptr<Expression>& expr);
-std::unique_ptr<nast::Program> eval(std::unique_ptr<Program> ast);
+std::unique_ptr<scug::Program> eval(std::unique_ptr<Program> ast);
