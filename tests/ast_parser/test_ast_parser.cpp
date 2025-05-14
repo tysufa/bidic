@@ -185,35 +185,39 @@ TEST(AstParserTest, BinaryOperators) {
 
     ASSERT_EQ(func_instr.size(), 3);
 
-    // auto unary1 = std::move(func_instr[0]);
-    // auto p_unary1 = dynamic_cast<nast::Unary const*>(unary1.get());
-    //
-    // EXPECT_EQ(p_unary1->unary_operation(), UnaryOperation::kNegate);
-    // EXPECT_EQ(p_unary1->dst()->ExpressionType(), "Variable");
-    // EXPECT_EQ(p_unary1->src()->ExpressionType(), "Constant");
-    //
-    // auto unary2 = std::move(func_instr[1]);
-    // auto p_unary2 = dynamic_cast<nast::Unary const*>(unary2.get());
-    //
-    // EXPECT_EQ(p_unary2->unary_operation(), UnaryOperation::kComplement);
-    // EXPECT_EQ(p_unary2->dst()->ExpressionType(), "Variable");
-    // EXPECT_EQ(p_unary2->src()->ExpressionType(), "Variable");
-    //
-    // EXPECT_EQ(func_instr[2]->TypeInstruction(),
-    //           "Return");
-    // auto p_return_statement = CONVERT(std::move(func_instr[2]),
-    //                                   nast::Return*);
-    //
-    // EXPECT_NE(p_return_statement,
-    //           nullptr) << "Expected non-null return statement pointer";
-    //
-    // if (p_return_statement) {
-    //   EXPECT_NE(p_return_statement->return_value(), nullptr);
-    //   EXPECT_EQ(p_return_statement->return_value()->ExpressionType(), "Variable");
-    //
-    //   const auto& var = p_return_statement->return_value();
-    //   auto p_var = dynamic_cast<nast::Variable const*> (var.get());
-    //   EXPECT_EQ(p_var->name(), "tempo.1");
-    // }
+    auto binary1 = std::move(func_instr[0]);
+    auto p_binary1 = dynamic_cast<scug::Binary const*>(binary1.get());
+
+    ASSERT_NE(p_binary1, nullptr);
+    EXPECT_EQ(p_binary1 ->binary_operation(), BinaryOperation::kMultply);
+    EXPECT_EQ(p_binary1->dst()->ExpressionType(), "Variable");
+    EXPECT_EQ(p_binary1->src1()->ExpressionType(), "Constant");
+    EXPECT_EQ(p_binary1->src2()->ExpressionType(), "Constant");
+
+    auto binary2 = std::move(func_instr[1]);
+    auto p_binary2 = dynamic_cast<scug::Binary const*>(binary2.get());
+
+    ASSERT_NE(p_binary2, nullptr);
+    EXPECT_EQ(p_binary2 ->binary_operation(), BinaryOperation::kPlus);
+    EXPECT_EQ(p_binary2->dst()->ExpressionType(), "Variable");
+    EXPECT_EQ(p_binary2->src1()->ExpressionType(), "Constant");
+    EXPECT_EQ(p_binary2->src2()->ExpressionType(), "Variable");
+
+    EXPECT_EQ(func_instr[2]->TypeInstruction(),
+              "Return");
+    auto p_return_statement = CONVERT(std::move(func_instr[2]),
+                                      scug::Return*);
+
+    EXPECT_NE(p_return_statement,
+              nullptr) << "Expected non-null return statement pointer";
+
+    if (p_return_statement) {
+      EXPECT_NE(p_return_statement->return_value(), nullptr);
+      EXPECT_EQ(p_return_statement->return_value()->ExpressionType(), "Variable");
+
+      const auto& var = p_return_statement->return_value();
+      auto p_var = dynamic_cast<scug::Variable const*> (var.get());
+      EXPECT_EQ(p_var->name(), "tempo.1");
+    }
   }
 }
