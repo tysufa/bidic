@@ -3,6 +3,8 @@
 
 #include "iostream"
 #include "token.hh"
+#include <cstdio>
+#include <string>
 
 bool Lexer::IsAlphaNum(char ch) const {
   return (('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') ||
@@ -20,7 +22,7 @@ void Lexer::NextChar() {
 }
 
 void Lexer::NewToken(TokenType type, const std::string &value,
-                     std::vector<Token> &tokens) {
+                     std::vector<Token>& tokens) {
   Token current_token = {.type = type, .value = value};
   tokens.push_back(current_token);
   NextChar();
@@ -54,74 +56,91 @@ std::vector<Token> Lexer::Tokens() {
     current_token.value = "";
 
     switch (_current_ch) {
-    case '+':
-      NewToken(TokenType::kPlus, s, tokens);
-      break;
-    case '*':
-      NewToken(TokenType::kStar, s, tokens);
-      break;
-    case '/':
-      NewToken(TokenType::kSlash, s, tokens);
-      break;
-    case '=':
-      NewToken(TokenType::kEqual, s, tokens);
-      break;
-    case ';':
-      NewToken(TokenType::kSemiColon, s, tokens);
-      break;
-    case '(':
-      NewToken(TokenType::kLeftParenthesis, s, tokens);
-      break;
-    case ')':
-      NewToken(TokenType::kRightParenthesis, s, tokens);
-      break;
-    case '{':
-      NewToken(TokenType::kLeftBracket, s, tokens);
-      break;
-    case '}':
-      NewToken(TokenType::kRightBracket, s, tokens);
-      break;
-    case '~':
-      NewToken(TokenType::kTilde, s, tokens);
-      break;
-    case '-':
-      if (_next_ch == '-') {
-        NewToken(TokenType::kDecrement, "--", tokens);
-        NextChar();
-      } else
-        NewToken(TokenType::kMinus, s, tokens);
+      case 0:
+        NewToken(TokenType::kEof, s, tokens);
+        break;
 
-      break;
+      case '+':
+        NewToken(TokenType::kPlus, s, tokens);
+        break;
 
-    default:
-      if (IsLetter(_current_ch)) {
-        while (IsAlphaNum(_current_ch)) {
-          current_token.value += _current_ch;
+      case '*':
+        NewToken(TokenType::kStar, s, tokens);
+        break;
+
+      case '/':
+        NewToken(TokenType::kSlash, s, tokens);
+        break;
+
+      case '=':
+        NewToken(TokenType::kEqual, s, tokens);
+        break;
+
+      case ';':
+        NewToken(TokenType::kSemiColon, s, tokens);
+        break;
+
+      case '(':
+        NewToken(TokenType::kLeftParenthesis, s, tokens);
+        break;
+
+      case ')':
+        NewToken(TokenType::kRightParenthesis, s, tokens);
+        break;
+
+      case '{':
+        NewToken(TokenType::kLeftBracket, s, tokens);
+        break;
+
+      case '}':
+        NewToken(TokenType::kRightBracket, s, tokens);
+        break;
+
+      case '~':
+        NewToken(TokenType::kTilde, s, tokens);
+        break;
+
+      case '-':
+        if (_next_ch == '-') {
+          NewToken(TokenType::kDecrement, "--", tokens);
           NextChar();
-        }
+        } else
+          NewToken(TokenType::kMinus, s, tokens);
 
-        if (Keywords.contains(current_token.value)) {
-          current_token.type = Keywords[current_token.value];
+        break;
+
+      default:
+        if (IsLetter(_current_ch)) {
+          while (IsAlphaNum(_current_ch)) {
+            current_token.value += _current_ch;
+            NextChar();
+          }
+
+          if (Keywords.contains(current_token.value)) {
+            current_token.type = Keywords[current_token.value];
+            tokens.push_back(current_token);
+          } else {
+            current_token.type = TokenType::kIdentifier;
+            tokens.push_back(current_token);
+          }
+
+        } else if (IsDigit(_current_ch)) {
+          while (IsDigit(_current_ch)) {
+            current_token.value += _current_ch;
+            NextChar();
+          }
+
+          current_token.type = TokenType::kNumber;
           tokens.push_back(current_token);
         } else {
-          current_token.type = TokenType::kIdentifier;
-          tokens.push_back(current_token);
+          NewToken(TokenType::kIllegal, s, tokens);
+          throw std::invalid_argument(
+              "Illegal character received: (ASCII " + std::to_string(static_cast<int>
+                  (_current_ch)) + ") : '" + s + "'"
+          );
         }
 
-      } else if (IsDigit(_current_ch)) {
-        while (IsDigit(_current_ch)) {
-          current_token.value += _current_ch;
-          NextChar();
-        }
-
-        current_token.type = TokenType::kNumber;
-        tokens.push_back(current_token);
-      } else {
-        NewToken(TokenType::kIllegal, s, tokens);
-        throw std::invalid_argument("illegal character received : " + s);
-      }
-
-      break;
+        break;
     }
   }
 

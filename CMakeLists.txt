@@ -56,6 +56,8 @@ target_include_directories(Ast_parser PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/lexer
 )
 
+target_link_libraries(Ast_parser PRIVATE Ast Parser)
+
 # --- Emitor Library ---
 add_library(Emitor STATIC
   ./src/emission/emission.cc
@@ -68,7 +70,8 @@ target_include_directories(Emitor PUBLIC
 
 # --- Main Executable ---
 add_executable(Bidic src/main.cpp)
-target_link_libraries(Bidic PRIVATE Lexer Ast)
+target_link_libraries(Bidic PRIVATE Lexer Ast Ast_parser Scug Emitor)
+target_include_directories(Bidic PRIVATE include)
 
 include(FetchContent)
 FetchContent_Declare(
