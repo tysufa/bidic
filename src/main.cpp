@@ -32,24 +32,28 @@ int main(int argc, char** argv) {
   std::string input_file;
   bool optimize = false;
   std::string output_file = "a.out";
+  bool asm_code = true;
 
   app.add_option("input_file,-i,--input", input_file,
                  "Input source file")->required()->check(CLI::ExistingFile);
   app.add_flag("-O,--optimize", optimize, "Enable optimizations");
   app.add_option("-o,--output", output_file, "Output executable name");
+  app.add_flag("-r, --reverse", output_file, "Compile from assembly to C");
 
   CLI11_PARSE(app, argc, argv);
 
   try {
+    std::cout << "c_code : " << asm_code << std::endl;
 
     std::string fileContent = readFileToString(input_file);
-    Lexer l(fileContent);
+    Lexer l(fileContent, !asm_code);
     Parser p(l.Tokens());
     auto scug = eval(p.ParseProgram());
     Emitor e(std::move(scug));
     std::string output = e.Emit();
 
     std::ofstream file(output_file);  // Creates/overwrites the file
+
 
     if (file.is_open()) {
       file << output;
