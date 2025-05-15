@@ -8,16 +8,17 @@
 /// @param input the code you want to compile
 class Lexer {
  public:
-  Lexer(std::string const & input)
-    :_input(input) {}
+  Lexer(std::string const & input, bool is_c_code = true)
+    : _input(input), _is_c_code(is_c_code) {}
 
-  std::string const & input() {
+  std::string const& input() {
     return _input;
   };
 
   std::vector<Token> Tokens();
 
  private:
+  std::vector<Token> TokenizeAsm();
   bool IsAlphaNum(char ch) const;
   bool IsLetter(char ch) const {
     return ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z');
@@ -33,6 +34,7 @@ class Lexer {
   void SkipWhitespace();
 
  private:
+  bool _is_c_code;
   std::string _input;
   char _current_ch;
   char _next_ch;
