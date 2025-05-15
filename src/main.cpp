@@ -43,23 +43,25 @@ int main(int argc, char** argv) {
   CLI11_PARSE(app, argc, argv);
 
   try {
-    std::cout << "c_code : " << asm_code << std::endl;
-
     std::string fileContent = readFileToString(input_file);
     Lexer l(fileContent, !asm_code);
-    Parser p(l.Tokens());
-    auto scug = eval(p.ParseProgram());
-    Emitor e(std::move(scug));
-    std::string output = e.Emit();
 
-    std::ofstream file(output_file);  // Creates/overwrites the file
+    if (!asm_code) {
 
+      Parser p(l.Tokens());
+      auto scug = eval(p.ParseProgram());
+      Emitor e(std::move(scug));
+      std::string output = e.Emit();
 
-    if (file.is_open()) {
-      file << output;
-      file.close();
-    } else
-      std::cerr << "Failed to create file!\n";
+      std::ofstream file(output_file);  // Creates/overwrites the file
+
+      if (file.is_open()) {
+        file << output;
+        file.close();
+      } else
+        std::cerr << "Failed to create file!\n";
+
+    }
 
   } catch (const std::exception& e) {
     std::cerr << "Error: " << e.what() << std::endl;
