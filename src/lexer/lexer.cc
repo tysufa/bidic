@@ -27,7 +27,7 @@ void Lexer::NewToken(TokenType type, const std::string &value,
 }
 
 void Lexer::SkipWhitespace() {
-  while (_current_ch == ' ' || _current_ch == '\n' || _current_ch == '\t')
+  while (_current_ch == ' ' || _current_ch == '\t')
     NextChar();
 }
 
@@ -91,6 +91,9 @@ std::vector<Token> Lexer::Tokens() {
       } else
         NewToken(TokenType::kMinus, s, tokens);
 
+      break;
+    case '\n':
+      NewToken(TokenType::kBSN, s, tokens);
       break;
 
     default:

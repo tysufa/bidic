@@ -30,9 +30,11 @@ TEST(LexerTest, BasicProgramTest) {
                                             TokenType::kLeftParenthesis,
                                             TokenType::kRightParenthesis,
                                             TokenType::kLeftBracket,
+                                            TokenType::kBSN,
                                             TokenType::kReturn,
                                             TokenType::kNumber,
                                             TokenType::kSemiColon,
+                                            TokenType::kBSN,
                                             TokenType::kRightBracket};
   ASSERT_EQ(tokens.size(), expected_tokens.size());
 

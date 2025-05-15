@@ -108,6 +108,7 @@ std::unique_ptr<ReturnStatement> Parser::ParseReturnStatement() {
   auto return_statement = std::make_unique<ReturnStatement>(std::move(res));
 
   CheckCurToken(TokenType::kSemiColon);
+  CurMaybe(TokenType::kBSN);
 
   return return_statement;
 }
@@ -117,6 +118,7 @@ void Parser::ParseFunctionArguments() {
   ExpectToken(TokenType::kRightParenthesis);
 
   ExpectToken(TokenType::kLeftBracket);
+  ExpectMaybe(TokenType::kBSN);
   ConsumeToken();
 }
 
@@ -138,6 +140,7 @@ Parser::ParseFunctionDeclaration(Type declaration_type,
   }
 
   CheckCurToken(TokenType::kRightBracket);
+  CurMaybe(TokenType::kBSN);
 
   return function;
 }
@@ -156,6 +159,7 @@ std::unique_ptr<Declaration> Parser::ParseDeclaration(Type declaration_type) {
       case Type::kInt:
         ExpectToken(TokenType::kNumber);
         ExpectToken(TokenType::kSemiColon);
+        ExpectMaybe(TokenType::kBSN);
         ConsumeToken();
         break;
 
@@ -167,9 +171,10 @@ std::unique_ptr<Declaration> Parser::ParseDeclaration(Type declaration_type) {
   } else if (_next_token.type == TokenType::kLeftParenthesis)
     instr = ParseFunctionDeclaration(declaration_type, std::move(ident));
 
-  else
+  else {
     ExpectToken(TokenType::kSemiColon);
-
+    ExpectMaybe(TokenType::kBSN);
+  }
   return instr;
 }
 
@@ -182,6 +187,8 @@ std::unique_ptr<Instruction> Parser::ParseInstruction() {
     case TokenType::kInt:
       return ParseDeclaration(Type::kInt);
       break;
+    case TokenType::kBSN:
+      throw std::runtime_error("feur");
 
     default:
       throw std::runtime_error("Expected instruction, got " +
@@ -210,11 +217,22 @@ void Parser::ExpectToken(const TokenType &tok) {
     ConsumeToken();
 }
 
+void Parser::ExpectMaybe(const TokenType &tok) {
+  if (_next_token.type == tok) {
+    ConsumeToken();
+  }
+}
+
 void Parser::CheckCurToken(const TokenType &tok) {
   if (_current_token.type != tok) {
     throw std::runtime_error("expected current token " + StringTokenType(tok) +
                              ", got " + StringTokenType(_next_token.type) +
                              " instead");
   } else
+    ConsumeToken();
+}
+
+void Parser::CurMaybe(const TokenType &tok) {
+  if (_current_token.type == tok) 
     ConsumeToken();
 }

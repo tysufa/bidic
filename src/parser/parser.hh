@@ -28,7 +28,9 @@ private:
   void ConsumeToken();
 
   void ExpectToken(const TokenType &tok);
+  void ExpectMaybe(const TokenType &tok);
   void CheckCurToken(const TokenType &tok);
+  void CurMaybe(const TokenType &tok);
 
   std::unique_ptr<Expression> ParsePrefix();
   bool IsOperator(TokenType t) {

@@ -22,6 +22,7 @@ enum class TokenType {
   kSlash,
   kTilde,
   kDecrement,
+  kBSN,
   kEof,
   kIllegal,
 };
