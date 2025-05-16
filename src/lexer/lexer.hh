@@ -31,6 +31,7 @@ class Lexer {
   void NextChar();
   void NewToken(TokenType type, const std::string& value,
                 std::vector<Token>& tokens);
+  void SkipWhitespaceNL();
   void SkipWhitespace();
 
  private:

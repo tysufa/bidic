@@ -84,3 +84,36 @@ TEST(LexerTest, BinaryOperators) {
   EXPECT_EQ(tokens[7].type, TokenType::kNumber);
   EXPECT_EQ(tokens[8].type, TokenType::kSemiColon);
 }
+
+TEST(AsmLexerTest, BasicProgramTest) {
+  std::string input = R"(func:
+    mov eax, identifier
+    imul [ebp-4], 4
+    ret
+    )";
+  Lexer lexer(input,false);
+  std::vector<Token> tokens = lexer.Tokens();
+  // ASSERT_EQ(tokens.size(), 21);
+  EXPECT_EQ(lexer.input(), input);
+  int i=0;
+  EXPECT_EQ(tokens[i++].type, TokenType::kIdentifier);
+  EXPECT_EQ(tokens[i++].type, TokenType::kColon);
+  EXPECT_EQ(tokens[i++].type, TokenType::kNL);
+  EXPECT_EQ(tokens[i++].type, TokenType::kMov);
+  EXPECT_EQ(tokens[i++].type, TokenType::kRegister);
+  EXPECT_EQ(tokens[i++].type, TokenType::kComma);
+  EXPECT_EQ(tokens[i++].type, TokenType::kIdentifier); // not supposed to work in practice
+  EXPECT_EQ(tokens[i++].type, TokenType::kNL);
+  EXPECT_EQ(tokens[i++].type, TokenType::kImul);
+  EXPECT_EQ(tokens[i++].type, TokenType::kLeftSquareBracket);
+  EXPECT_EQ(tokens[i++].type, TokenType::kRegister);
+  EXPECT_EQ(tokens[i++].type, TokenType::kMinus);
+  EXPECT_EQ(tokens[i++].type, TokenType::kNumber);
+  EXPECT_EQ(tokens[i++].type, TokenType::kRightSquareBracket);
+  EXPECT_EQ(tokens[i++].type, TokenType::kComma);
+  EXPECT_EQ(tokens[i++].type, TokenType::kNumber);
+  EXPECT_EQ(tokens[i++].type, TokenType::kNL);
+  EXPECT_EQ(tokens[i++].type, TokenType::kReturn);
+  EXPECT_EQ(tokens[i++].type, TokenType::kNL);
+  EXPECT_EQ(tokens[i++].type, TokenType::kEof);
+}

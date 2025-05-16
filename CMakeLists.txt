@@ -27,6 +27,7 @@ target_include_directories(Ast PUBLIC
 # --- Parser Library ---
 add_library(Parser STATIC
   src/parser/parser.cc
+  src/parser/parser_asm.cpp
 )
 
 target_include_directories(Parser PUBLIC

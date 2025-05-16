@@ -214,7 +214,7 @@ void Parser::ExpectToken(const TokenType &tok) {
 void Parser::CheckCurToken(const TokenType &tok) {
   if (_current_token.type != tok) {
     throw std::runtime_error("expected current token " + StringTokenType(tok) +
-                             ", got " + StringTokenType(_next_token.type) +
+                             ", got " + StringTokenType(_current_token.type) +
                              " instead");
   } else
     ConsumeToken();

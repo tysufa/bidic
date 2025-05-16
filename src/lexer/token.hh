@@ -4,24 +4,41 @@
 #include <unordered_map>
 
 enum class TokenType {
+  // C tokens
   kString,
   kInt,
-  kIdentifier,
   kEqual,
   kSemiColon,
-  kNumber,
-  kReturn,
   kLeftParenthesis,
   kRightParenthesis,
   kRightBracket,
   kLeftBracket,
   kMain,
   kPlus,
-  kMinus,
   kStar,
   kSlash,
   kTilde,
   kDecrement,
+
+  // C and Asm tokens
+  kIdentifier,
+  kMinus,
+  kReturn,
+  kNumber,
+
+  // Asm tokens
+  kNL,
+  kMov,
+  kImul,
+  kAdd,
+  kNeg,
+  kComma,
+  kLeftSquareBracket,
+  kRightSquareBracket,
+  kRegister,
+  kColon,
+
+  // Other
   kEof,
   kIllegal,
 };
@@ -107,15 +124,71 @@ inline std::string StringTokenType(const TokenType& tok) {
     case TokenType::kDecrement:
       return "kDecrement";
       break;
+
+    case TokenType::kNL:
+      return "\\n";
+      break;
+
+    case TokenType::kMov:
+      return "kMov";
+      break;
+
+    case TokenType::kImul:
+      return "kImul";
+      break;
+
+    case TokenType::kAdd:
+      return "kAdd";
+      break;
+
+    case TokenType::kNeg:
+      return "kNeg";
+      break;
+
+    case TokenType::kComma :
+      return "kComma" ;
+      break;
+
+    case TokenType::kLeftSquareBracket :
+      return "kLeftSquareBracket";
+      break;
+
+    case TokenType::kRightSquareBracket :
+      return "kRightSquareBracket";
+      break;
+
+    case TokenType::kRegister :
+      return "kRegister";
+      break;
+
+    case TokenType::kColon :
+      return "kColon";
+      break;
   }
 
   return "";
 }
 
-inline std::unordered_map<std::string, TokenType> Keywords = {
+inline std::unordered_map<std::string, TokenType> CKeywords = {
   {"int", TokenType::kInt},
   {"return", TokenType::kReturn},
   {"main", TokenType::kMain},
+};
+
+inline std::unordered_map<std::string, TokenType> AsmKeywords = {
+  {"mov", TokenType::kMov},
+  {"imul", TokenType::kImul},
+  {"neg", TokenType::kNeg},
+  {"add", TokenType::kAdd},
+  {"ret", TokenType::kReturn},
+  {"eax", TokenType::kRegister},
+  {"ebx", TokenType::kRegister},
+  {"ecx", TokenType::kRegister},
+  {"edx", TokenType::kRegister},
+  {"ebp", TokenType::kRegister},
+  {"esp", TokenType::kRegister},
+  {"esi", TokenType::kRegister},
+  {"edi", TokenType::kRegister},
 };
 
 struct Token {

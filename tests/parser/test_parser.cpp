@@ -1,6 +1,7 @@
 #include "ast.hh"
 #include "lexer.hh"
 #include "parser.hh"
+#include "parser_asm.hh"
 #include "token.hh"
 #include <gtest/gtest.h>
 #include <iostream>
@@ -225,4 +226,29 @@ TEST(ParserTest, BinaryOperators) {
       }
     }
   }
+}
+
+TEST(AsmParserTest, Mov) {
+  std::string input = R"(mov eax, 5
+  ret)";
+  Lexer lexer(input,false);
+  std::vector<Token> tokens = lexer.Tokens();
+  Parser_asm parser(tokens);
+  std::unique_ptr<scug::Program> p = parser.ParseProgram();
+
+  const std::vector<std::unique_ptr<scug::Instruction>> &instructions =
+      p->instructions();
+
+  ASSERT_EQ(instructions.size(), 2);
+
+  auto pDeclaration = dynamic_cast<scug::Move const*>(instructions[0].get());
+  EXPECT_EQ(instructions[0]->TypeInstruction(), "MoveInstruction");
+  EXPECT_NE(pDeclaration, nullptr) << "Expected non-null Declaration pointer";
+
+  if (pDeclaration) {
+    EXPECT_EQ(pDeclaration->get_register(), "eax");
+    EXPECT_EQ(pDeclaration->value(), "5");
+  }
+  EXPECT_EQ(instructions[1]->TypeInstruction(), "Ret");
+  EXPECT_EQ(instructions[2].get(), nullptr);
 }

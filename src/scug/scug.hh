@@ -4,17 +4,17 @@
 #include <string>
 #include <vector>
 
-enum class Register { eax, ebx, ecx, edx, ebp, esp, esi, edi };
+// enum class Register { eax, ebx, ecx, edx, ebp, esp, esi, edi };
 
 enum class UnaryOperation {kNegate, kComplement};
 enum class BinaryOperation {kMinus, kPlus, kDivide, kMultply, kModulo};
 
-inline std::string RegisterToString(Register r) {
-  static const char* names[] = {"eax", "ebx", "ecx", "edx",
-                                "ebp", "esp", "esi", "edi"
-                               };
-  return names[static_cast<int>(r)]; // 'value' is the enum's underlying integer
-}
+// inline std::string RegisterToString(Register r) {
+//   static const char* names[] = {"eax", "ebx", "ecx", "edx",
+//                                 "ebp", "esp", "esi", "edi"
+//                                };
+//   return names[static_cast<int>(r)]; // 'value' is the enum's underlying integer
+// }
 
 namespace scug {
 using namespace scug;
@@ -121,18 +121,25 @@ class FunctionDeclaration : public scug::Instruction {
 
 class Move : public Instruction {
  public:
-  Move(Register reg, std::unique_ptr<Constant> value)
-    : _register(reg), _value(std::move(value)) {}
+  Move(std::string reg, std::string value)
+    : _register(reg), _value(value) {}
 
   std::string TypeInstruction() const override { return "MoveInstruction"; };
 
-  Register get_register() const { return _register; };
-  std::string get_register_str() { return RegisterToString(_register); };
-  const std::unique_ptr<Constant>& value() const { return _value; };
+  std::string get_register() const { return _register; };
+  // std::string get_register_str() { return RegisterToString(_register); };
+  std::string value() const { return _value; };
 
  private:
-  Register _register;
-  std::unique_ptr<Constant> _value;
+  std::string _register;
+  std::string _value;
+};
+
+class Ret : public Instruction {
+  public:
+    Ret(){}
+
+    std::string TypeInstruction() const override { return "Ret";}
 };
 
 class Return : public Instruction {
@@ -144,11 +151,11 @@ class Return : public Instruction {
 
   const std::unique_ptr<Expression>& return_value() const {return _return_value;}
 
-  std::unique_ptr<Move> move() const {
-    return std::make_unique<Move>(
-        Register::eax, std::make_unique<Constant>(_return_value->value())
-    );
-  }
+  // std::unique_ptr<Move> move() const {
+  //   return std::make_unique<Move>(
+  //       Register::eax, std::make_unique<Constant>(_return_value->value())
+  //   );
+  // }
 
  private:
   std::unique_ptr<Expression> _return_value;
