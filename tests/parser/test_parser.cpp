@@ -234,9 +234,9 @@ TEST(AsmParserTest, MovAndRet) {
   Lexer lexer(input,false);
   std::vector<Token> tokens = lexer.Tokens();
   Parser_asm parser(tokens);
-  std::unique_ptr<scav::Program> p = parser.ParseProgram();
+  std::shared_ptr<scav::Program> p = parser.ParseProgram();
 
-  const std::vector<std::unique_ptr<scav::Instruction>> &instructions =
+  const std::vector<std::shared_ptr<scav::Instruction>> &instructions =
       p->instructions();
 
   ASSERT_EQ(instructions.size(), 2);
@@ -254,15 +254,15 @@ TEST(AsmParserTest, MovAndRet) {
 
 TEST(AsmParserTest, BasicFunctionDeclaration) {
   std::string input = R"(func:
-    mov eax, 5
+    mov [ebp-4], 5
     ret
   ret)";
   Lexer lexer(input,false);
   std::vector<Token> tokens = lexer.Tokens();
   Parser_asm parser(tokens);
-  std::unique_ptr<scav::Program> p = parser.ParseProgram();
+  std::shared_ptr<scav::Program> p = parser.ParseProgram();
 
-  const std::vector<std::unique_ptr<scav::Instruction>> &instructions =
+  const std::vector<std::shared_ptr<scav::Instruction>> &instructions =
       p->instructions();
 
   ASSERT_EQ(instructions.size(), 2);
@@ -273,11 +273,11 @@ TEST(AsmParserTest, BasicFunctionDeclaration) {
 
   EXPECT_EQ(pDeclaration->identifier()->name(), "func");
   ASSERT_EQ(pDeclaration->instructions().size(), 2);
-  const std::vector<std::unique_ptr<scav::Instruction>> &funcinstructions = pDeclaration->instructions();
+  const std::vector<std::shared_ptr<scav::Instruction>> &funcinstructions = pDeclaration->instructions();
 
   auto pMove = dynamic_cast<scav::Move const*>(funcinstructions[0].get());
   ASSERT_NE(pMove, nullptr);
-  EXPECT_EQ(pMove->get_register(), "eax");
+  EXPECT_EQ(pMove->get_register(), "ebp4");
   EXPECT_EQ(pMove->value(), "5");
 
   EXPECT_EQ(funcinstructions[1]->TypeInstruction(), "Return");

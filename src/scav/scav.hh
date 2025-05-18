@@ -72,15 +72,15 @@ class Program {
  public:
   Program() = default;
 
-  std::vector<std::unique_ptr<Instruction>> instructions() {
-    return std::move(_instructions);
+  std::vector<std::shared_ptr<Instruction>> instructions() {
+    return _instructions;
   }
-  void add_instruction(std::unique_ptr<scav::Instruction> instruction) {
-    _instructions.push_back(std::move(instruction));
+  void add_instruction(std::shared_ptr<scav::Instruction> instruction) {
+    _instructions.push_back(instruction);
   }
 
  private:
-  std::vector<std::unique_ptr<Instruction>> _instructions;
+  std::vector<std::shared_ptr<Instruction>> _instructions;
 };
 
 class Identifier {
@@ -95,26 +95,26 @@ class Identifier {
 
 class FunctionDeclaration : public scav::Instruction {
  public:
-  FunctionDeclaration(std::unique_ptr<Identifier> ident)
-    : _identifier(std::move(ident)) {}
+  FunctionDeclaration(std::shared_ptr<Identifier> ident)
+    : _identifier(ident) {}
 
   std::string TypeInstruction() const override {
     return "FunctionDeclaration";
   };
 
-  const std::vector<std::unique_ptr<scav::Instruction>> &instructions() const {
+  const std::vector<std::shared_ptr<scav::Instruction>> &instructions() const {
     return _instructions;
   }
 
-  const std::unique_ptr<Identifier>& identifier() const { return _identifier; }
+  const std::shared_ptr<Identifier>& identifier() const { return _identifier; }
 
-  void add_instruction(std::unique_ptr<Instruction> instruction) {
-    _instructions.push_back(std::move(instruction));
+  void add_instruction(std::shared_ptr<Instruction> instruction) {
+    _instructions.push_back(instruction);
   }
 
  private:
-  std::vector<std::unique_ptr<Instruction>> _instructions;
-  std::unique_ptr<Identifier> _identifier;
+  std::vector<std::shared_ptr<Instruction>> _instructions;
+  std::shared_ptr<Identifier> _identifier;
 };
 
 class Move : public scav::Instruction {
@@ -143,18 +143,18 @@ class Return : public scav::Instruction {
 /*
 class Unary : public Instruction{
  public:
-  Unary(UnaryOperation unary_op, std::unique_ptr<Expression> src, std::unique_ptr<Variable> dst)
-    : _unary_operation(unary_op), _src(std::move(src)), _dst(std::move(dst)) {}
+  Unary(UnaryOperation unary_op, std::shared_ptr<Expression> src, std::shared_ptr<Variable> dst)
+    : _unary_operation(unary_op), _src(src), _dst(dst) {}
 
   UnaryOperation unary_operation() const {return _unary_operation;}
-  const std::unique_ptr<Variable>& dst() const {return _dst;}
-  const std::unique_ptr<Expression>& src() const {return _src;}
+  const std::shared_ptr<Variable>& dst() const {return _dst;}
+  const std::shared_ptr<Expression>& src() const {return _src;}
 
   std::string TypeInstruction() const override {return "Unary";};
 
  private:
-  std::unique_ptr<Expression> _src;
-  std::unique_ptr<Variable> _dst;
+  std::shared_ptr<Expression> _src;
+  std::shared_ptr<Variable> _dst;
   UnaryOperation _unary_operation;
 };
 */

@@ -6,23 +6,22 @@
 #include <string>
 #include <utility>
 
-std::unique_ptr<scav::Program> Parser_asm::ParseProgram() {
-  auto program = std::make_unique<scav::Program>();
+std::shared_ptr<scav::Program> Parser_asm::ParseProgram() {
+  auto program = std::make_shared<scav::Program>();
   _current_token_index = -2;
   ConsumeToken();
   ConsumeToken();
 
-  std::unique_ptr<scav::Instruction> instr = ParseInstruction();
+  std::shared_ptr<scav::Instruction> instr = ParseInstruction();
   while(instr){
-    program->add_instruction(std::move(instr));
+    program->add_instruction(instr);
     instr = ParseInstruction();
   }
-
 
   return program;
 }
 
-std::unique_ptr<scav::Instruction> Parser_asm::ParseInstruction() {
+std::shared_ptr<scav::Instruction> Parser_asm::ParseInstruction() {
   std::cout<<"instr"<<std::endl;
   switch (_current_token.type) {
     case TokenType::kIdentifier:
@@ -48,20 +47,16 @@ std::unique_ptr<scav::Instruction> Parser_asm::ParseInstruction() {
   }
 }
 
-std::unique_ptr<scav::FunctionDeclaration> Parser_asm::ParseFunctionDeclaration(){
+std::shared_ptr<scav::FunctionDeclaration> Parser_asm::ParseFunctionDeclaration(){
   
   auto function =
-      std::make_unique<scav::FunctionDeclaration>(std::make_unique<scav::Identifier>(ConsumeToken()));
+      std::make_shared<scav::FunctionDeclaration>(std::make_shared<scav::Identifier>(ConsumeToken()));
   
   CheckCurToken(TokenType::kColon);
   CheckCurToken(TokenType::kNL);
 
-  std::unique_ptr<scav::Instruction> function_instruction;// = ParseInstruction();
-  // bool not_eof(function_instruction);
-  // if(!not_eof){
-  //   throw std::runtime_error("Cannot end a function without a ret statement");
-  // }
-  std::string type("");//(function_instruction.get()->TypeInstruction());
+  std::shared_ptr<scav::Instruction> function_instruction;
+  std::string type("");
 
   while (type!="Return") {
     function_instruction = ParseInstruction();
@@ -71,20 +66,20 @@ std::unique_ptr<scav::FunctionDeclaration> Parser_asm::ParseFunctionDeclaration(
     else{
       type=function_instruction.get()->TypeInstruction();
       std::cout<<"in function, instr "<<type<<std::endl;
-      function->add_instruction(std::move(function_instruction));
+      function->add_instruction(function_instruction);
     }
   }
 
-  return std::move(function);
+  return function;
 }
 
-std::unique_ptr<scav::Move> Parser_asm::ParseMove(){
+std::shared_ptr<scav::Move> Parser_asm::ParseMove(){
   ConsumeToken();
   std::string reg=ParseRegister();
   CheckCurToken(TokenType::kComma);
   std::string nb=CheckCurToken(TokenType::kNumber);
   CheckCurToken(TokenType::kNL);
-  return std::make_unique<scav::Move>(reg,nb);
+  return std::make_shared<scav::Move>(reg,nb);
 }
 
 std::string Parser_asm::ParseRegister(){
@@ -106,10 +101,10 @@ std::string Parser_asm::ParseRegister(){
     }
 }
 
-std::unique_ptr<scav::Return> Parser_asm::ParseReturn(){
+std::shared_ptr<scav::Return> Parser_asm::ParseReturn(){
   CheckCurToken(TokenType::kReturn);
   CheckCurToken(TokenType::kNL);
-  return std::make_unique<scav::Return>();
+  return std::make_shared<scav::Return>();
 }
 
 std::string Parser_asm::ConsumeToken(){
