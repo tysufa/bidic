@@ -6,13 +6,13 @@
 #include <string>
 #include <utility>
 
-std::unique_ptr<scug::Program> Parser_asm::ParseProgram() {
-  auto program = std::make_unique<scug::Program>();
+std::unique_ptr<scav::Program> Parser_asm::ParseProgram() {
+  auto program = std::make_unique<scav::Program>();
   _current_token_index = -2;
   ConsumeToken();
   ConsumeToken();
 
-  std::unique_ptr<scug::Instruction> instr = ParseInstruction();
+  std::unique_ptr<scav::Instruction> instr = ParseInstruction();
   while(instr){
     program->add_instruction(std::move(instr));
     instr = ParseInstruction();
@@ -22,20 +22,23 @@ std::unique_ptr<scug::Program> Parser_asm::ParseProgram() {
   return program;
 }
 
-std::unique_ptr<scug::Instruction> Parser_asm::ParseInstruction() {
+std::unique_ptr<scav::Instruction> Parser_asm::ParseInstruction() {
+  std::cout<<"instr"<<std::endl;
   switch (_current_token.type) {
-    // case TokenType::kIdentifier:
-    //   return ParseFunctionDeclaration(std::make_unique<scug::Identifier>(_current_token.value));
-    //   break;
+    case TokenType::kIdentifier:
+      std::cout<<"identifier"<<std::endl;
+      return ParseFunctionDeclaration();
+      break;
     case TokenType::kMov:
+      std::cout<<"move"<<std::endl;
       return ParseMove();
       break;
     case TokenType::kReturn:
-      CheckCurToken(TokenType::kReturn);
-      CheckCurToken(TokenType::kNL);
-      return std::make_unique<scug::Ret>();
+      std::cout<<"return"<<std::endl;
+      return ParseReturn();
       break;
     case TokenType::kEof:
+      std::cout<<"eof"<<std::endl;
       return nullptr;
       break;
 
@@ -45,13 +48,43 @@ std::unique_ptr<scug::Instruction> Parser_asm::ParseInstruction() {
   }
 }
 
-std::unique_ptr<scug::Move> Parser_asm::ParseMove(){
+std::unique_ptr<scav::FunctionDeclaration> Parser_asm::ParseFunctionDeclaration(){
+  
+  auto function =
+      std::make_unique<scav::FunctionDeclaration>(std::make_unique<scav::Identifier>(ConsumeToken()));
+  
+  CheckCurToken(TokenType::kColon);
+  CheckCurToken(TokenType::kNL);
+
+  std::unique_ptr<scav::Instruction> function_instruction;// = ParseInstruction();
+  // bool not_eof(function_instruction);
+  // if(!not_eof){
+  //   throw std::runtime_error("Cannot end a function without a ret statement");
+  // }
+  std::string type("");//(function_instruction.get()->TypeInstruction());
+
+  while (type!="Return") {
+    function_instruction = ParseInstruction();
+    if(!function_instruction){
+      throw std::runtime_error("Cannot end a function without a ret statement");
+    }
+    else{
+      type=function_instruction.get()->TypeInstruction();
+      std::cout<<"in function, instr "<<type<<std::endl;
+      function->add_instruction(std::move(function_instruction));
+    }
+  }
+
+  return std::move(function);
+}
+
+std::unique_ptr<scav::Move> Parser_asm::ParseMove(){
   ConsumeToken();
   std::string reg=ParseRegister();
   CheckCurToken(TokenType::kComma);
   std::string nb=CheckCurToken(TokenType::kNumber);
   CheckCurToken(TokenType::kNL);
-  return std::make_unique<scug::Move>(reg,nb);
+  return std::make_unique<scav::Move>(reg,nb);
 }
 
 std::string Parser_asm::ParseRegister(){
@@ -71,6 +104,12 @@ std::string Parser_asm::ParseRegister(){
       CheckCurToken(TokenType::kRightSquareBracket);
       return s;
     }
+}
+
+std::unique_ptr<scav::Return> Parser_asm::ParseReturn(){
+  CheckCurToken(TokenType::kReturn);
+  CheckCurToken(TokenType::kNL);
+  return std::make_unique<scav::Return>();
 }
 
 std::string Parser_asm::ConsumeToken(){

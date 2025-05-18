@@ -6,8 +6,6 @@
 
 // enum class Register { eax, ebx, ecx, edx, ebp, esp, esi, edi };
 
-enum class UnaryOperation {kNegate, kComplement};
-enum class BinaryOperation {kMinus, kPlus, kDivide, kMultply, kModulo};
 
 // inline std::string RegisterToString(Register r) {
 //   static const char* names[] = {"eax", "ebx", "ecx", "edx",
@@ -16,8 +14,8 @@ enum class BinaryOperation {kMinus, kPlus, kDivide, kMultply, kModulo};
 //   return names[static_cast<int>(r)]; // 'value' is the enum's underlying integer
 // }
 
-namespace scug {
-using namespace scug;
+namespace scav {
+using namespace scav;
 
 
 class Expression {
@@ -31,7 +29,7 @@ class Expression {
 
 };
 
-class Variable : public Expression {
+class Variable : public scav::Expression {
  public:
   Variable(const std::string& name)
     : _name(name) {}
@@ -49,7 +47,7 @@ class Variable : public Expression {
 
 // TODO: For now Constant is only integers, later we need to make it a virtual
 // class and make subclasses for other types
-class Constant : public Expression {
+class Constant : public scav::Expression {
  public:
   Constant(int value)
     : _value(value) {}
@@ -77,7 +75,7 @@ class Program {
   std::vector<std::unique_ptr<Instruction>> instructions() {
     return std::move(_instructions);
   }
-  void add_instruction(std::unique_ptr<scug::Instruction> instruction) {
+  void add_instruction(std::unique_ptr<scav::Instruction> instruction) {
     _instructions.push_back(std::move(instruction));
   }
 
@@ -95,7 +93,7 @@ class Identifier {
   std::string _name;
 };
 
-class FunctionDeclaration : public scug::Instruction {
+class FunctionDeclaration : public scav::Instruction {
  public:
   FunctionDeclaration(std::unique_ptr<Identifier> ident)
     : _identifier(std::move(ident)) {}
@@ -104,8 +102,8 @@ class FunctionDeclaration : public scug::Instruction {
     return "FunctionDeclaration";
   };
 
-  std::vector<std::unique_ptr<scug::Instruction>> instructions() {
-    return std::move(_instructions);
+  const std::vector<std::unique_ptr<scav::Instruction>> &instructions() const {
+    return _instructions;
   }
 
   const std::unique_ptr<Identifier>& identifier() const { return _identifier; }
@@ -119,60 +117,30 @@ class FunctionDeclaration : public scug::Instruction {
   std::unique_ptr<Identifier> _identifier;
 };
 
-// class Move : public Instruction {
-//  public:
-//   Move(std::string reg, std::string value)
-//     : _register(reg), _value(value) {}
-
-//   std::string TypeInstruction() const override { return "MoveInstruction"; };
-
-//   std::string get_register() const { return _register; };
-//   // std::string get_register_str() { return RegisterToString(_register); };
-//   std::string value() const { return _value; };
-
-//  private:
-//   std::string _register;
-//   std::string _value;
-// };
-
-class Return : public Instruction {
+class Move : public scav::Instruction {
  public:
-  Return(std::unique_ptr<Expression> return_value)
-    : _return_value(std::move(return_value)) {}
+  Move(std::string reg, std::string value)
+    : _register(reg), _value(value) {}
 
-  std::string TypeInstruction() const override { return "Return"; }
+  std::string TypeInstruction() const override { return "MoveInstruction"; };
 
-  const std::unique_ptr<Expression>& return_value() const {return _return_value;}
-
-  // std::unique_ptr<Move> move() const {
-  //   return std::make_unique<Move>(
-  //       Register::eax, std::make_unique<Constant>(_return_value->value())
-  //   );
-  // }
+  std::string get_register() const { return _register; };
+  // std::string get_register_str() { return RegisterToString(_register); };
+  std::string value() const { return _value; };
 
  private:
-  std::unique_ptr<Expression> _return_value;
+  std::string _register;
+  std::string _value;
 };
 
-class Binary : public Instruction{
- public:
-  Binary(BinaryOperation binary_op, std::unique_ptr<Expression> src1, std::unique_ptr<Expression> src2, std::unique_ptr<Variable> dst)
-    : _binary_operation(binary_op), _src1(std::move(src1)), _src2(std::move(src2)), _dst(std::move(dst)) {}
+class Return : public scav::Instruction {
+  public:
+    Return(){}
 
-  BinaryOperation binary_operation() const {return _binary_operation;}
-  const std::unique_ptr<Variable>& dst() const {return _dst;}
-  const std::unique_ptr<Expression>& src1() const {return _src1;}
-  const std::unique_ptr<Expression>& src2() const {return _src2;}
-
-  std::string TypeInstruction() const override {return "Binary";};
-
- private:
-  std::unique_ptr<Expression> _src1;
-  std::unique_ptr<Expression> _src2;
-  std::unique_ptr<Variable> _dst;
-  BinaryOperation _binary_operation;
+    std::string TypeInstruction() const override { return "Return";}
 };
 
+/*
 class Unary : public Instruction{
  public:
   Unary(UnaryOperation unary_op, std::unique_ptr<Expression> src, std::unique_ptr<Variable> dst)
@@ -189,5 +157,6 @@ class Unary : public Instruction{
   std::unique_ptr<Variable> _dst;
   UnaryOperation _unary_operation;
 };
+*/
 
-} // namespace nast
+} // namespace scav
