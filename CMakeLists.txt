@@ -48,11 +48,13 @@ target_include_directories(Scug INTERFACE
 # --- Ast_parser Library (Header only) ---
 add_library(Ast_parser STATIC
   src/ast_parser/ast_parser.cc  
+  src/ast_parser/ast_parser_asm.cpp 
 )
 
 target_include_directories(Ast_parser PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ast_parser
   ${CMAKE_CURRENT_SOURCE_DIR}/src/scug
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/scav
   ${CMAKE_CURRENT_SOURCE_DIR}/src/ast
   ${CMAKE_CURRENT_SOURCE_DIR}/src/lexer
 )

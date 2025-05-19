@@ -6,8 +6,8 @@
 #include <string>
 #include <utility>
 
-std::shared_ptr<scav::Program> Parser_asm::ParseProgram() {
-  auto program = std::make_shared<scav::Program>();
+std::unique_ptr<scav::Program> Parser_asm::ParseProgram() {
+  auto program = std::make_unique<scav::Program>();
   _current_token_index = -2;
   ConsumeToken();
   ConsumeToken();
@@ -18,7 +18,7 @@ std::shared_ptr<scav::Program> Parser_asm::ParseProgram() {
     instr = ParseInstruction();
   }
 
-  return program;
+  return std::move(program);
 }
 
 std::shared_ptr<scav::Instruction> Parser_asm::ParseInstruction() {

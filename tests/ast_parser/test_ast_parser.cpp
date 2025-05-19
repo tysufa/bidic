@@ -1,9 +1,12 @@
 #include "lexer.hh"
 #include "token.hh"
 #include "parser.hh"
+#include "parser_asm.hh"
 #include "ast.hh"
 #include "scug.hh"
+#include "scav.hh"
 #include "ast_parser.hh"
+#include "ast_parser_asm.hh"
 #include <iostream>
 #include <memory>
 #include <string>
@@ -24,7 +27,7 @@ TEST(AstParserTest, BasicProgramTest) {
   // the std::move is automatic
   res = eval(parser.ParseProgram());
 
-  std::vector<std::unique_ptr<scug::Instruction>> instructions = std::move(res->instructions());
+  std::vector<std::shared_ptr<scug::Instruction>> instructions = std::move(res->instructions());
 
   ASSERT_EQ(instructions.size(), 1);
 
@@ -70,7 +73,7 @@ TEST(AstParserTest, UnaryOperator) {
 
   res = eval(parser.ParseProgram());
 
-  const std::vector<std::unique_ptr<scug::Instruction>>& instructions = res->instructions();
+  const std::vector<std::shared_ptr<scug::Instruction>>& instructions = res->instructions();
 
   auto p_func_declaration = dynamic_cast<scug::FunctionDeclaration*>
                             (instructions[0].get());
@@ -220,4 +223,48 @@ TEST(AstParserTest, BinaryOperators) {
       EXPECT_EQ(p_var->name(), "tempo.1");
     }
   }
+}
+
+TEST(AsmAstParserTest, BasicProgramTest) {
+  // std::string input = R"(func:
+  //   mov [ebp-4], 5
+  //   ret
+  // ret)";
+  // Lexer lexer(input,false);
+  // std::vector<Token> tokens = lexer.Tokens();
+  // Parser_asm parser(tokens);
+  // Ast_Parser_Asm ast_parser(parser.ParseProgram());
+  // std::cout<<"a"<<std::endl;
+  // std::unique_ptr<scug::Program> res(ast_parser.ParseProgram());
+  // std::cout<<"a"<<std::endl;
+  // std::vector<std::shared_ptr<scug::Instruction>> instructions = std::move(res->instructions());
+
+  // ASSERT_EQ(instructions.size(), 2);
+
+  // EXPECT_EQ(instructions[0]->TypeInstruction(), "FunctionDeclaration");
+
+  // auto p_function_declaration = CONVERT(instructions[0], scug::FunctionDeclaration*);
+
+  // EXPECT_NE(p_function_declaration, nullptr) << "Expected non-null func pointer";
+
+  // if (p_function_declaration) {
+  //   auto func_instr = p_function_declaration->instructions();
+
+  //   EXPECT_EQ(p_function_declaration->identifier()->name(), "test");
+
+
+  //   ASSERT_EQ(func_instr.size(), 1);
+
+  //   EXPECT_EQ(func_instr[0]->TypeInstruction(),
+  //             "Return");
+
+  //   auto p_return_statement = dynamic_cast<scug::Return const*>
+  //                             (func_instr[0].get());
+
+  //   EXPECT_NE(p_return_statement,
+  //             nullptr) << "Expected non-null return statement pointer";
+
+  //   if (p_return_statement)
+  //     EXPECT_EQ(p_return_statement->return_value()->Evaluate(), 1);
+  // }
 }

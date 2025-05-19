@@ -1,8 +1,10 @@
 #pragma once
 
+#include "../scug/scug.hh"
 #include <memory>
 #include <string>
 #include <vector>
+#include <map>
 
 // enum class Register { eax, ebx, ecx, edx, ebp, esp, esi, edi };
 
@@ -64,6 +66,7 @@ class Constant : public scav::Expression {
 class Instruction {
  public:
   virtual std::string TypeInstruction() const = 0;
+  virtual bool isoperation() const {return false;}
 
  private:
 };
@@ -117,19 +120,39 @@ class FunctionDeclaration : public scav::Instruction {
   std::shared_ptr<Identifier> _identifier;
 };
 
-class Move : public scav::Instruction {
+class Operation : public scav::Instruction{
+  public:
+  Operation(std::string dst) : _dst(dst){}
+
+  bool isoperation() const override {return true;}
+
+  std::string get_dst() const {return _dst;}
+  virtual void update(std::map<std::string,std::shared_ptr<scug::Expression>> &contexte) const =0;
+
+  private:
+  std::string _dst;
+};
+
+class Move : public scav::Operation {
  public:
-  Move(std::string reg, std::string value)
-    : _register(reg), _value(value) {}
+  Move(std::string dst, std::string value)
+    : Operation(dst), _value(value) {}
 
   std::string TypeInstruction() const override { return "MoveInstruction"; };
 
-  std::string get_register() const { return _register; };
+
   // std::string get_register_str() { return RegisterToString(_register); };
   std::string value() const { return _value; };
+  void update(std::map<std::string,std::shared_ptr<scug::Expression>> &contexte) const override{
+    if(_value[0]=='e'){
+      contexte[get_dst()]=contexte[_value];
+    }
+    else{
+      contexte[get_dst()]=std::make_shared<scug::Constant>(std::stoi(_value));
+    }
+  } 
 
  private:
-  std::string _register;
   std::string _value;
 };
 

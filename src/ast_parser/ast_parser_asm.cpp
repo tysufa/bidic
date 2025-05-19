@@ -7,37 +7,60 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <iostream>
 
-std::unique_ptr<scug::Program> ParseProgram(std::unique_ptr<scav::Program> scav) {
+std::unique_ptr<scug::Program> Ast_Parser_Asm::ParseProgram() {
     auto program = std::make_unique<scug::Program>();
 
-    const std::vector<std::shared_ptr<scav::Instruction>>& instruction = scav->instructions();
-    auto it = instruction.begin();
-    while(it!=instruction.end()){
-        program->add_instruction(ParseInstruction(*it));
-        ++it;
+    int _index=0;
+    std::cout<<"premier parse commencé"<<std::endl;
+    std::shared_ptr<scug::Instruction> instr = ParseInstruction(_index,_scav->instructions());
+    std::cout<<"premier parse fini"<<std::endl;
+    while(instr){
+        ++_index;
+        std::cout<<"while hors"<<std::endl;
+        program->add_instruction(instr);
+        instr = ParseInstruction(_index,_scav->instructions());
     }
 
     return program;
 }
 
 
-std::unique_ptr<scug::Instruction> ParseInstruction(std::shared_ptr<scav::Instruction> scav){
-
-    if(scav->TypeInstruction()=="FunctionDeclaration"){
-        auto function = std::dynamic_pointer_cast<scav::FunctionDeclaration>(scav);
-        return ParseDeclaration(std::make_unique<scug::Identifier>(function->identifier()->name()),function->instructions());
-    } 
-    else if(scav->TypeInstruction()=="MoveInstruction"){
-        auto move = std::dynamic_pointer_cast<scav::Move>(scav);
-        if(move->value()[0]=='e'){
-            // contexte[move->get_register()]=contexte[move->value()];
-        }
-        else{
-            // contexte[move->get_register()]=Constant(std::stoi(move->value()));
+std::shared_ptr<scug::Instruction> Ast_Parser_Asm::ParseInstruction(int &_index,const std::vector<std::shared_ptr<scav::Instruction>> &inst){
+    std::cout<<"parse instr"<<_index<<std::endl;
+    if(inst[_index]->isoperation()==true){
+        auto operation = std::dynamic_pointer_cast<scav::Operation>(inst[_index]);
+        operation->update(_context);
+        if(operation->get_dst()=="eax"){
+            ++_index;
+            while(inst[_index]->isoperation()==true && std::dynamic_pointer_cast<scav::Operation>(inst[_index])->get_dst()=="eax"){
+                std::dynamic_pointer_cast<scav::Operation>(inst[_index])->update(_context);
+                ++_index;
+            }
+            if(inst[_index]->isoperation()==true){
+                auto operation=std::dynamic_pointer_cast<scav::Operation>(inst[_index]);
+                operation->update(_context);
+                if(inst[_index]->TypeInstruction()=="MoveInstruction"){
+                    return std::make_shared<scug::Move>(operation->get_dst(),_context[operation->get_dst()]);
+                }else throw std::runtime_error("no other operation than move at the moment");
+                // return ParseOperation();
+            }
+            else if(inst[_index]->TypeInstruction()=="Return"){
+                return std::make_shared<scug::Return>(_context["eax"]);
+            }
         }
     }
-
+    if(inst[_index]->TypeInstruction()=="FunctionDeclaration"){
+        std::cout<<"function def"<<std::endl;
+        auto func = std::dynamic_pointer_cast<scav::FunctionDeclaration>(inst[_index]);
+        return ParseDeclaration(func);
+    } 
+    else if(inst[_index]->TypeInstruction()=="Return"){
+        ++_index;
+        return std::make_shared<scug::Return>(_context["eax"]);
+    }
+    else throw std::runtime_error("invalid instruction");
 
 
     // if (auto function = dynamic_cast<scav::FunctionDeclaration const*>
@@ -64,13 +87,19 @@ std::unique_ptr<scug::Instruction> ParseInstruction(std::shared_ptr<scav::Instru
     // return scug;
 }
 
-std::unique_ptr<scug::FunctionDeclaration> ParseDeclaration(std::unique_ptr<scug::Identifier> id, const std::vector<std::shared_ptr<scav::Instruction>> &inst){
-    auto nasm_func = std::make_unique<scug::FunctionDeclaration>(std::move(id));
+std::unique_ptr<scug::FunctionDeclaration> Ast_Parser_Asm::ParseDeclaration(std::shared_ptr<scav::FunctionDeclaration> func){
+    auto nasm_func = std::make_unique<scug::FunctionDeclaration>(std::make_unique<scug::Identifier>(func->identifier()->name()));
 
-    auto it = inst.begin();
-    while (it!=inst.end()) {
-        nasm_func->add_instruction(ParseInstruction(*it));
-        ++it;
+    
+    int _index=0;
+    std::cout<<"premier parse func commencé"<<std::endl;
+    std::shared_ptr<scug::Instruction> instr = ParseInstruction(_index,func->instructions());
+    std::cout<<"premier parse func fini"<<std::endl;
+    while (instr) {
+        ++_index;
+        std::cout<<"while dans"<<std::endl;
+        nasm_func->add_instruction(instr);
+        instr = ParseInstruction(_index,func->instructions());
     }
 
     return nasm_func;

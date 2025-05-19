@@ -19,8 +19,8 @@ class Emitor {
   int _current_stack_placement;
 
   int _current_instruction;
-  std::vector<std::unique_ptr<scug::Instruction>> _instructions;
+  std::vector<std::shared_ptr<scug::Instruction>> _instructions;
 
-  std::unique_ptr<scug::Program> _program;
+  std::shared_ptr<scug::Program> _program;
   std::unordered_map<std::string, std::string> _registers;
 };

@@ -49,7 +49,7 @@ class Variable : public Expression {
 
 // TODO: For now Constant is only integers, later we need to make it a virtual
 // class and make subclasses for other types
-class Constant : public Expression {
+class Constant : public Expression{
  public:
   Constant(int value)
     : _value(value) {}
@@ -57,6 +57,7 @@ class Constant : public Expression {
   int value() const override {return _value;}
   int Evaluate() const override {return _value;}
 
+  // std::string TypeInstruction() const override {return "Constant";}
   std::string ExpressionType() const override {return "Constant";}
 
  private:
@@ -65,8 +66,7 @@ class Constant : public Expression {
 
 class Instruction {
  public:
-  virtual std::string TypeInstruction() const = 0;
-
+  virtual std::string TypeInstruction() const = 0; 
  private:
 };
 
@@ -74,15 +74,15 @@ class Program {
  public:
   Program() = default;
 
-  std::vector<std::unique_ptr<Instruction>> instructions() {
+  std::vector<std::shared_ptr<Instruction>> instructions() {
     return std::move(_instructions);
   }
-  void add_instruction(std::unique_ptr<scug::Instruction> instruction) {
+  void add_instruction(std::shared_ptr<scug::Instruction> instruction) {
     _instructions.push_back(std::move(instruction));
   }
 
  private:
-  std::vector<std::unique_ptr<Instruction>> _instructions;
+  std::vector<std::shared_ptr<Instruction>> _instructions;
 };
 
 class Identifier {
@@ -104,45 +104,45 @@ class FunctionDeclaration : public scug::Instruction {
     return "FunctionDeclaration";
   };
 
-  std::vector<std::unique_ptr<scug::Instruction>> instructions() {
+  std::vector<std::shared_ptr<scug::Instruction>> instructions() {
     return std::move(_instructions);
   }
 
   const std::unique_ptr<Identifier>& identifier() const { return _identifier; }
 
-  void add_instruction(std::unique_ptr<Instruction> instruction) {
+  void add_instruction(std::shared_ptr<Instruction> instruction) {
     _instructions.push_back(std::move(instruction));
   }
 
  private:
-  std::vector<std::unique_ptr<Instruction>> _instructions;
+  std::vector<std::shared_ptr<Instruction>> _instructions;
   std::unique_ptr<Identifier> _identifier;
 };
 
-// class Move : public Instruction {
-//  public:
-//   Move(std::string reg, std::string value)
-//     : _register(reg), _value(value) {}
+class Move : public Instruction {
+ public:
+  Move(std::string reg, std::shared_ptr<Expression> value)
+    : _register(reg), _value(value) {}
 
-//   std::string TypeInstruction() const override { return "MoveInstruction"; };
+  std::string TypeInstruction() const override { return "MoveInstruction"; };
 
-//   std::string get_register() const { return _register; };
-//   // std::string get_register_str() { return RegisterToString(_register); };
-//   std::string value() const { return _value; };
+  std::string get_register() const { return _register; };
+  // std::string get_register_str() { return RegisterToString(_register); };
+  std::shared_ptr<Expression> value() const { return _value; };
 
-//  private:
-//   std::string _register;
-//   std::string _value;
-// };
+ private:
+  std::string _register;
+  std::shared_ptr<Expression> _value;
+};
 
 class Return : public Instruction {
  public:
-  Return(std::unique_ptr<Expression> return_value)
+  Return(std::shared_ptr<Expression> return_value)
     : _return_value(std::move(return_value)) {}
 
   std::string TypeInstruction() const override { return "Return"; }
 
-  const std::unique_ptr<Expression>& return_value() const {return _return_value;}
+  const std::shared_ptr<Expression>& return_value() const {return _return_value;}
 
   // std::unique_ptr<Move> move() const {
   //   return std::make_unique<Move>(
@@ -151,7 +151,7 @@ class Return : public Instruction {
   // }
 
  private:
-  std::unique_ptr<Expression> _return_value;
+  std::shared_ptr<Expression> _return_value;
 };
 
 class Binary : public Instruction{

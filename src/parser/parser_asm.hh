@@ -8,9 +8,9 @@ class Parser_asm {
  public:
   Parser_asm(const std::vector<Token>& tokens) : _tokens(tokens) {}
 
-  std::shared_ptr<scav::Program> ParseProgram();
+  std::unique_ptr<scav::Program> ParseProgram();
 
-  std::shared_ptr<scav::Program> program() { return _program; };
+  // std::shared_ptr<scav::Program> program() { return _program; };
 
  private:
   std::shared_ptr<scav::Instruction> ParseInstruction();
@@ -40,5 +40,5 @@ class Parser_asm {
   Token _current_token;
   Token _next_token;
   std::vector<Token> _tokens;
-  std::shared_ptr<scav::Program> _program;
+  // std::shared_ptr<scav::Program> _program;
 };
