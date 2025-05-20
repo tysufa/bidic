@@ -14,7 +14,7 @@ class Emitor {
 
  private:
   std::string ReplacePseudoRegister(const std::string& pseudo_reg);
-  std::string ExpressionToStr(const std::unique_ptr<scug::Expression>& expr);
+  std::string ExpressionToStr(const std::shared_ptr<scug::Expression>& expr);
 
   int _current_stack_placement;
 

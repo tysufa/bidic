@@ -17,7 +17,7 @@ std::string Emitor::ReplacePseudoRegister(const std::string& pseudo_reg) {
   }
 }
 
-std::string Emitor::ExpressionToStr(const std::unique_ptr<scug::Expression>&
+std::string Emitor::ExpressionToStr(const std::shared_ptr<scug::Expression>&
                                     expr) {
   if (const auto& var = dynamic_cast<scug::Variable const*>(expr.get()))
     return ReplacePseudoRegister(var->name());

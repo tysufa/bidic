@@ -283,3 +283,43 @@ TEST(AsmParserTest, BasicFunctionDeclaration) {
 
   EXPECT_EQ(instructions[1]->TypeInstruction(), "Return");
 }
+
+
+TEST(AsmParserTest, BasicFunctionDeclarationMult) {
+  std::string input = R"(func:
+    imul eax, 5
+    mov [ebp-4], 5
+    ret
+  ret)";
+  Lexer lexer(input,false);
+  std::vector<Token> tokens = lexer.Tokens();
+  Parser_asm parser(tokens);
+  std::unique_ptr<scav::Program> p = parser.ParseProgram();
+
+  const std::vector<std::shared_ptr<scav::Instruction>> &instructions =
+      p->instructions();
+
+  ASSERT_EQ(instructions.size(), 2);
+
+  auto pDeclaration = dynamic_cast<scav::FunctionDeclaration const*>(instructions[0].get());
+  EXPECT_EQ(instructions[0]->TypeInstruction(), "FunctionDeclaration");
+  EXPECT_NE(pDeclaration, nullptr) << "Expected non-null Declaration pointer";
+
+  EXPECT_EQ(pDeclaration->identifier()->name(), "func");
+  ASSERT_EQ(pDeclaration->instructions().size(), 3);
+  const std::vector<std::shared_ptr<scav::Instruction>> &funcinstructions = pDeclaration->instructions();
+
+  auto pMove1 = dynamic_cast<scav::Mult const*>(funcinstructions[0].get());
+  ASSERT_NE(pMove1, nullptr);
+  EXPECT_EQ(pMove1->get_dst(), "eax");
+  EXPECT_EQ(pMove1->value(), "5");
+
+  auto pMove = dynamic_cast<scav::Move const*>(funcinstructions[1].get());
+  ASSERT_NE(pMove, nullptr);
+  EXPECT_EQ(pMove->get_dst(), "ebp4");
+  EXPECT_EQ(pMove->value(), "5");
+
+  EXPECT_EQ(funcinstructions[2]->TypeInstruction(), "Return");
+
+  EXPECT_EQ(instructions[1]->TypeInstruction(), "Return");
+}

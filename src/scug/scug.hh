@@ -156,20 +156,39 @@ class Return : public Instruction {
 
 class Binary : public Instruction{
  public:
-  Binary(BinaryOperation binary_op, std::unique_ptr<Expression> src1, std::unique_ptr<Expression> src2, std::unique_ptr<Variable> dst)
+  Binary(BinaryOperation binary_op, std::shared_ptr<Expression> src1, std::shared_ptr<Expression> src2, std::shared_ptr<Variable> dst)
     : _binary_operation(binary_op), _src1(std::move(src1)), _src2(std::move(src2)), _dst(std::move(dst)) {}
 
   BinaryOperation binary_operation() const {return _binary_operation;}
-  const std::unique_ptr<Variable>& dst() const {return _dst;}
-  const std::unique_ptr<Expression>& src1() const {return _src1;}
-  const std::unique_ptr<Expression>& src2() const {return _src2;}
+  const std::shared_ptr<Variable>& dst() const {return _dst;}
+  const std::shared_ptr<Expression>& src1() const {return _src1;}
+  const std::shared_ptr<Expression>& src2() const {return _src2;}
 
   std::string TypeInstruction() const override {return "Binary";};
 
  private:
-  std::unique_ptr<Expression> _src1;
-  std::unique_ptr<Expression> _src2;
-  std::unique_ptr<Variable> _dst;
+  std::shared_ptr<Expression> _src1;
+  std::shared_ptr<Expression> _src2;
+  std::shared_ptr<Variable> _dst;
+  BinaryOperation _binary_operation;
+};
+
+class BinaryExpression : public Expression{
+ public:
+  BinaryExpression(BinaryOperation binary_op, std::shared_ptr<Expression> src1, std::shared_ptr<Expression> src2)
+    : _binary_operation(binary_op), _src1(std::move(src1)), _src2(std::move(src2)) {}
+
+  BinaryOperation binary_operation() const {return _binary_operation;}
+  const std::shared_ptr<Expression>& src1() const {return _src1;}
+  const std::shared_ptr<Expression>& src2() const {return _src2;}
+
+  int Evaluate() const override{return 0;}
+  int value() const override{return 0;}
+  std::string ExpressionType() const override {return "Binary";};
+
+ private:
+  std::shared_ptr<Expression> _src1;
+  std::shared_ptr<Expression> _src2;
   BinaryOperation _binary_operation;
 };
 

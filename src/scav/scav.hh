@@ -122,38 +122,95 @@ class FunctionDeclaration : public scav::Instruction {
 
 class Operation : public scav::Instruction{
   public:
-  Operation(std::string dst) : _dst(dst){}
+  Operation(std::string dst, std::string value) : _dst(dst), _value(value){}
 
   bool isoperation() const override {return true;}
 
   std::string get_dst() const {return _dst;}
-  virtual void update(std::map<std::string,std::shared_ptr<scug::Expression>> &contexte) const =0;
+  std::string value() const {return _value;}
+  std::shared_ptr<scug::Expression> Evaluate() const {
+    if(_value[0]=='e'){
+      return std::make_shared<scug::Variable>(_value);
+    }
+    else{
+      return std::make_shared<scug::Constant>(std::stoi(_value));
+    }
+  }
+  virtual void update(std::shared_ptr<scug::Expression> &eax) const =0;
 
   private:
   std::string _dst;
+  std::string _value;
 };
 
 class Move : public scav::Operation {
  public:
   Move(std::string dst, std::string value)
-    : Operation(dst), _value(value) {}
+    : Operation(dst,value) {}
 
   std::string TypeInstruction() const override { return "MoveInstruction"; };
 
-
-  // std::string get_register_str() { return RegisterToString(_register); };
-  std::string value() const { return _value; };
-  void update(std::map<std::string,std::shared_ptr<scug::Expression>> &contexte) const override{
-    if(_value[0]=='e'){
-      contexte[get_dst()]=contexte[_value];
+  void update(std::shared_ptr<scug::Expression> &eax) const override{
+    if(value()=="eax"){
     }
     else{
-      contexte[get_dst()]=std::make_shared<scug::Constant>(std::stoi(_value));
+      eax=Evaluate();
     }
   } 
 
  private:
-  std::string _value;
+
+};
+
+class Mult : public scav::Operation {
+ public:
+  Mult(std::string dst, std::string value)
+    : Operation(dst,value) {}
+
+  std::string TypeInstruction() const override { return "ImulInstruction"; };
+
+
+  void update(std::shared_ptr<scug::Expression> &eax) const override{
+    if(value()=="eax"){
+      eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kMultply, eax, eax);
+    }
+    eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kMultply, eax, Evaluate());
+    // if(_value[0]=='e'){
+    //   if(_value=="eax"){
+
+    //   }
+    //   else{
+    //     eax=std::make_shared<scug::Variable>(_value);
+    //   }
+    //   eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kMultply, contexte[get_dst()], contexte[_value]);
+    // }
+    // else{
+    //   eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kMultply, contexte[get_dst()],std::make_shared<scug::Constant>(std::stoi(_value)));
+    // }
+  } 
+
+};
+
+class Add : public scav::Operation {
+ public:
+  Add(std::string dst, std::string value)
+    : Operation(dst,value) {}
+
+  std::string TypeInstruction() const override { return "AddInstruction"; };
+
+  void update(std::shared_ptr<scug::Expression> &eax) const override{
+    if(value()=="eax"){
+      eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kPlus, eax, eax);
+    }
+    eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kPlus, eax, Evaluate());
+    // if(_value[0]=='e'){
+    //   eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kPlus, contexte[get_dst()], contexte[_value]);
+    // }
+    // else{
+    //   eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kPlus, contexte[get_dst()],std::make_shared<scug::Constant>(std::stoi(_value)));
+    // }
+  } 
+
 };
 
 class Return : public scav::Instruction {

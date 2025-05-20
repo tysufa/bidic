@@ -32,6 +32,14 @@ std::shared_ptr<scav::Instruction> Parser_asm::ParseInstruction() {
       std::cout<<"move"<<std::endl;
       return ParseMove();
       break;
+    case TokenType::kImul:
+      std::cout<<"mult"<<std::endl;
+      return ParseMult();
+      break;
+    case TokenType::kAdd:
+      std::cout<<"add"<<std::endl;
+      return ParseAdd();
+      break;
     case TokenType::kReturn:
       std::cout<<"return"<<std::endl;
       return ParseReturn();
@@ -77,9 +85,39 @@ std::shared_ptr<scav::Move> Parser_asm::ParseMove(){
   ConsumeToken();
   std::string reg=ParseRegister();
   CheckCurToken(TokenType::kComma);
-  std::string nb=CheckCurToken(TokenType::kNumber);
+  std::string value;
+  if(_current_token.type==TokenType::kNumber){
+    value=CheckCurToken(TokenType::kNumber);
+  }
+  else value=ParseRegister();
   CheckCurToken(TokenType::kNL);
-  return std::make_shared<scav::Move>(reg,nb);
+  return std::make_shared<scav::Move>(reg,value);
+}
+
+std::shared_ptr<scav::Mult> Parser_asm::ParseMult(){
+  ConsumeToken();
+  std::string reg=ParseRegister();
+  CheckCurToken(TokenType::kComma);
+  std::string value;
+  if(_current_token.type==TokenType::kNumber){
+    value=CheckCurToken(TokenType::kNumber);
+  }
+  else value=ParseRegister();
+  CheckCurToken(TokenType::kNL);
+  return std::make_shared<scav::Mult>(reg,value);
+}
+
+std::shared_ptr<scav::Add> Parser_asm::ParseAdd(){
+  ConsumeToken();
+  std::string reg=ParseRegister();
+  CheckCurToken(TokenType::kComma);
+  std::string value;
+  if(_current_token.type==TokenType::kNumber){
+    value=CheckCurToken(TokenType::kNumber);
+  }
+  else value=ParseRegister();
+  CheckCurToken(TokenType::kNL);
+  return std::make_shared<scav::Add>(reg,value);
 }
 
 std::string Parser_asm::ParseRegister(){

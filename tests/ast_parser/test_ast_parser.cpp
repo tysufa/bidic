@@ -226,45 +226,52 @@ TEST(AstParserTest, BinaryOperators) {
 }
 
 TEST(AsmAstParserTest, BasicProgramTest) {
-  // std::string input = R"(func:
-  //   mov [ebp-4], 5
-  //   ret
-  // ret)";
-  // Lexer lexer(input,false);
-  // std::vector<Token> tokens = lexer.Tokens();
-  // Parser_asm parser(tokens);
-  // Ast_Parser_Asm ast_parser(parser.ParseProgram());
-  // std::cout<<"a"<<std::endl;
-  // std::unique_ptr<scug::Program> res(ast_parser.ParseProgram());
-  // std::cout<<"a"<<std::endl;
-  // std::vector<std::shared_ptr<scug::Instruction>> instructions = std::move(res->instructions());
+  std::string input = R"(func:
+    mov eax, 4
+    imul eax, 4
+    mov [ebp-4], eax
+    add [ebp-8], eax
+    ret
+  ret)";
+  Lexer lexer(input,false);
+  std::vector<Token> tokens = lexer.Tokens();
+  Parser_asm parser(tokens);
+  Ast_Parser_Asm ast_parser(parser.ParseProgram());
+  std::unique_ptr<scug::Program> res(ast_parser.ParseProgram());
+  std::vector<std::shared_ptr<scug::Instruction>> instructions = std::move(res->instructions());
 
-  // ASSERT_EQ(instructions.size(), 2);
+  ASSERT_EQ(instructions.size(), 2);
 
-  // EXPECT_EQ(instructions[0]->TypeInstruction(), "FunctionDeclaration");
+  EXPECT_EQ(instructions[0]->TypeInstruction(), "FunctionDeclaration");
 
-  // auto p_function_declaration = CONVERT(instructions[0], scug::FunctionDeclaration*);
+  auto p_function_declaration = std::dynamic_pointer_cast<scug::FunctionDeclaration>(instructions[0]);
 
-  // EXPECT_NE(p_function_declaration, nullptr) << "Expected non-null func pointer";
+  EXPECT_NE(p_function_declaration, nullptr) << "Expected non-null func pointer";
 
-  // if (p_function_declaration) {
-  //   auto func_instr = p_function_declaration->instructions();
+  auto func_instr = p_function_declaration->instructions();
 
-  //   EXPECT_EQ(p_function_declaration->identifier()->name(), "test");
+  EXPECT_EQ(p_function_declaration->identifier()->name(), "func");
 
+  ASSERT_EQ(func_instr.size(), 3);
+  ASSERT_EQ(func_instr[0]->TypeInstruction(),"MoveInstruction");
+  auto move = std::dynamic_pointer_cast<scug::Move>(func_instr[0]);
+  auto value = std::dynamic_pointer_cast<scug::BinaryExpression>(move->value());
+  ASSERT_NE(value,nullptr);
+  EXPECT_EQ(value->src1()->value(),4);
+  EXPECT_EQ(value->src2()->value(),4);
+  EXPECT_EQ(func_instr[1]->TypeInstruction(),"MoveInstruction");
+  auto move2 = std::dynamic_pointer_cast<scug::Move>(func_instr[1]);
+  auto value2 = std::dynamic_pointer_cast<scug::BinaryExpression>(move2->value());
+  auto value5 = std::dynamic_pointer_cast<scug::BinaryExpression>(value2->src2());
+  auto name = std::dynamic_pointer_cast<scug::Variable>(value2->src1())->name();
+  EXPECT_NE(value2,nullptr);
+  EXPECT_EQ(name,"ebp8");
+  EXPECT_NE(value5,nullptr);
+  EXPECT_EQ(func_instr[2]->TypeInstruction(),"Return");
+  auto value4 = std::dynamic_pointer_cast<scug::BinaryExpression>(std::dynamic_pointer_cast<scug::Return>(func_instr[2])->return_value());
+  EXPECT_NE(value4,nullptr);
 
-  //   ASSERT_EQ(func_instr.size(), 1);
-
-  //   EXPECT_EQ(func_instr[0]->TypeInstruction(),
-  //             "Return");
-
-  //   auto p_return_statement = dynamic_cast<scug::Return const*>
-  //                             (func_instr[0].get());
-
-  //   EXPECT_NE(p_return_statement,
-  //             nullptr) << "Expected non-null return statement pointer";
-
-  //   if (p_return_statement)
-  //     EXPECT_EQ(p_return_statement->return_value()->Evaluate(), 1);
-  // }
+  EXPECT_EQ(instructions[1]->TypeInstruction(),"Return");
+  auto value3 = std::dynamic_pointer_cast<scug::BinaryExpression>(std::dynamic_pointer_cast<scug::Return>(instructions[1])->return_value());
+  EXPECT_NE(value3,nullptr);
 }
