@@ -1,54 +1,20 @@
 #include "emission_asm.hh"
 #include "scug.hh"
-#include <iostream>
 #include <memory>
 #include <string>
 #include <algorithm>
 
-// std::string Emitor_asm::ReplacePseudoRegister(const std::string& pseudo_reg) {
-//   auto it = _registers.find(pseudo_reg);
-
-//   if (it != _registers.end())
-//     return it->second;
-//   else {
-//     _current_stack_placement += 4;
-//     _registers[pseudo_reg] = "[ebp-" + std::to_string(_current_stack_placement) +
-//                              "]";
-//     return _registers[pseudo_reg];
-//   }
-// }
-
-// std::string Emitor_asm::ExpressionToStr(const std::shared_ptr<scug::Expression>&
-//                                     expr) {
-//   if (const auto& var = dynamic_cast<scug::Variable const*>(expr.get()))
-//     return ReplacePseudoRegister(var->name());
-//   else
-//     return std::to_string(expr->Evaluate());
-// }
-
 std::string Emitor_asm::Emit() {
-
-
-  // make my own list of instructions
-  auto instr = _program->instructions();
-
-
-//   std::string indent = "";
-//   const scug::Return* p_return;
-//   scug::FunctionDeclaration* p_function;
-//   const scug::Unary* p_unary;
-//   const scug::Binary* p_binary;
-    std::cout<<"before first emit "<<_index<<" "<<instr.size()<<std::endl;
+    auto instr = _program->instructions();
 
     std::string result=Declaration(instr);
 
-  while (_index < instr.size()) {
-    std::cout<<"first emit"<<std::endl;
-    result+=EmitInstruction(_index,instr);
-    ++_index;
-  }
+    while (_index < instr.size()) {
+        result+=EmitInstruction(_index,instr);
+        ++_index;
+    }
 
-  return result;
+    return result;
 }
 
 std::string Emitor_asm::EmitInstruction(int &index, std::vector<std::shared_ptr<scug::Instruction>> instr) {

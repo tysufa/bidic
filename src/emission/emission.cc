@@ -1,6 +1,5 @@
 #include "emission.hh"
 #include "scug.hh"
-#include <iostream>
 #include <memory>
 #include <string>
 

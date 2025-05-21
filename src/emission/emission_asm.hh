@@ -12,6 +12,7 @@ class Emitor_asm {
     std::string Emit();
 
  private:
+
     std::string EmitInstruction(int &_index, std::vector<std::shared_ptr<scug::Instruction>> instr);
     std::string EmitDeclaration(std::shared_ptr<scug::FunctionDeclaration>);
     std::vector<std::string> init(std::vector<std::shared_ptr<scug::Instruction>> instr);

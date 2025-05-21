@@ -1,6 +1,5 @@
 #include "parser_asm.hh"
 #include "token.hh"
-#include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -22,38 +21,29 @@ std::unique_ptr<scav::Program> Parser_asm::ParseProgram() {
 }
 
 std::shared_ptr<scav::Instruction> Parser_asm::ParseInstruction() {
-  std::cout<<"instr"<<std::endl;
   switch (_current_token.type) {
     case TokenType::kIdentifier:
-      std::cout<<"identifier"<<std::endl;
       return ParseFunctionDeclaration();
       break;
     case TokenType::kMov:
-      std::cout<<"move"<<std::endl;
       return ParseMove();
       break;
     case TokenType::kImul:
-      std::cout<<"mult"<<std::endl;
       return ParseMult();
       break;
     case TokenType::kAdd:
-      std::cout<<"add"<<std::endl;
       return ParseAdd();
       break;
     case TokenType::kNeg:
-      std::cout<<"neg"<<std::endl;
       return ParseNeg();
       break;
     case TokenType::kNot:
-      std::cout<<"not"<<std::endl;
       return ParseNot();
       break;
     case TokenType::kReturn:
-      std::cout<<"return"<<std::endl;
       return ParseReturn();
       break;
     case TokenType::kEof:
-      std::cout<<"eof"<<std::endl;
       return nullptr;
       break;
 
@@ -81,7 +71,6 @@ std::shared_ptr<scav::FunctionDeclaration> Parser_asm::ParseFunctionDeclaration(
     }
     else{
       type=function_instruction.get()->TypeInstruction();
-      std::cout<<"in function, instr "<<type<<std::endl;
       function->add_instruction(function_instruction);
     }
   }

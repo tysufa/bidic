@@ -1,7 +1,6 @@
 #include "parser.hh"
 #include "ast.hh"
 #include "token.hh"
-#include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -38,8 +37,6 @@ std::unique_ptr<ast::Expression> Parser::ParseExpression(int precedenceLimit) {
 
   while (_current_token.type != TokenType::kEof or
          _current_token.type != TokenType::kIllegal) {
-
-    std::cout << StringTokenType(_current_token.type) << std::endl;
 
     if (!IsOperator(_current_token.type))
       return left;

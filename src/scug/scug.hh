@@ -47,13 +47,6 @@ inline std::string unopto_string(UnaryOperation u){
   }
 }
 
-// inline std::string RegisterToString(Register r) {
-//   static const char* names[] = {"eax", "ebx", "ecx", "edx",
-//                                 "ebp", "esp", "esi", "edi"
-//                                };
-//   return names[static_cast<int>(r)]; // 'value' is the enum's underlying integer
-// }
-
 namespace scug {
 using namespace scug;
 
@@ -94,8 +87,6 @@ class Constant : public Expression{
 
   int value() const override {return _value;}
   std::string Evaluate() const override {return std::to_string(_value);}
-
-  // std::string TypeInstruction() const override {return "Constant";}
   std::string ExpressionType() const override {return "Constant";}
 
  private:

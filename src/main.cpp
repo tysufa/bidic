@@ -45,8 +45,6 @@ int main(int argc, char** argv) {
 
   CLI11_PARSE(app, argc, argv);
 
-    std::cout<<"oui "<<output_file<< " "<<asm_code<<std::endl;
-
   try {
     std::string fileContent = readFileToString(input_file);
     Lexer l(fileContent, !asm_code);

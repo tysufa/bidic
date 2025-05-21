@@ -5,18 +5,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <iostream>
-
-// enum class Register { eax, ebx, ecx, edx, ebp, esp, esi, edi };
-
-
-// inline std::string RegisterToString(Register r) {
-//   static const char* names[] = {"eax", "ebx", "ecx", "edx",
-//                                 "ebp", "esp", "esi", "edi"
-//                                };
-//   return names[static_cast<int>(r)]; // 'value' is the enum's underlying integer
-// }
-
 namespace scav {
 using namespace scav;
 
@@ -24,8 +12,6 @@ using namespace scav;
 class Expression {
  public:
   virtual int Evaluate() const = 0;
-  //TODO: value() should be replaced by Evaluate(), it is here juste to test
-  //that you can replace Constant by Expression
   virtual int value() const = 0;
 
   virtual std::string ExpressionType() const = 0;
@@ -48,8 +34,6 @@ class Variable : public scav::Expression {
   std::string _name;
 };
 
-// TODO: For now Constant is only integers, later we need to make it a virtual
-// class and make subclasses for other types
 class Constant : public scav::Expression {
  public:
   Constant(int value)
@@ -178,20 +162,8 @@ class Mult : public scav::Operation {
     }
     else{
       eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kMultply, eax, Evaluate());
-    }    // if(_value[0]=='e'){
-    //   if(_value=="eax"){
-
-    //   }
-    //   else{
-    //     eax=std::make_shared<scug::Variable>(_value);
-    //   }
-    //   eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kMultply, contexte[get_dst()], contexte[_value]);
-    // }
-    // else{
-    //   eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kMultply, contexte[get_dst()],std::make_shared<scug::Constant>(std::stoi(_value)));
-    // }
+    }
   } 
-
 };
 
 class Add : public scav::Operation {
@@ -208,14 +180,7 @@ class Add : public scav::Operation {
     else{
       eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kPlus, eax, Evaluate());
     }
-    // if(_value[0]=='e'){
-    //   eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kPlus, contexte[get_dst()], contexte[_value]);
-    // }
-    // else{
-    //   eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kPlus, contexte[get_dst()],std::make_shared<scug::Constant>(std::stoi(_value)));
-    // }
   } 
-
 };
 
 class Neg : public scav::Operation {
@@ -232,15 +197,7 @@ class Neg : public scav::Operation {
     else{
       eax=std::make_shared<scug::UnaryExpression>(UnaryOperation::kNegate, Evaluate());
     }
-
-    // if(_value[0]=='e'){
-    //   eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kPlus, contexte[get_dst()], contexte[_value]);
-    // }
-    // else{
-    //   eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kPlus, contexte[get_dst()],std::make_shared<scug::Constant>(std::stoi(_value)));
-    // }
   } 
-
 };
 
 class Not : public scav::Operation {
@@ -256,14 +213,8 @@ class Not : public scav::Operation {
     }
     else{
       eax=std::make_shared<scug::UnaryExpression>(UnaryOperation::kNegate, Evaluate());
-    }    // if(_value[0]=='e'){
-    //   eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kPlus, contexte[get_dst()], contexte[_value]);
-    // }
-    // else{
-    //   eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kPlus, contexte[get_dst()],std::make_shared<scug::Constant>(std::stoi(_value)));
-    // }
+    }
   } 
-
 };
 
 class Return : public scav::Instruction {
@@ -272,24 +223,5 @@ class Return : public scav::Instruction {
 
     std::string TypeInstruction() const override { return "Return";}
 };
-
-/*
-class Unary : public Instruction{
- public:
-  Unary(UnaryOperation unary_op, std::shared_ptr<Expression> src, std::shared_ptr<Variable> dst)
-    : _unary_operation(unary_op), _src(src), _dst(dst) {}
-
-  UnaryOperation unary_operation() const {return _unary_operation;}
-  const std::shared_ptr<Variable>& dst() const {return _dst;}
-  const std::shared_ptr<Expression>& src() const {return _src;}
-
-  std::string TypeInstruction() const override {return "Unary";};
-
- private:
-  std::shared_ptr<Expression> _src;
-  std::shared_ptr<Variable> _dst;
-  UnaryOperation _unary_operation;
-};
-*/
 
 } // namespace scav
