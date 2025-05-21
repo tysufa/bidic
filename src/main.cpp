@@ -3,6 +3,9 @@
 #include "emission.hh"
 #include "lexer.hh"
 #include "parser/parser.hh"
+#include "ast_parser_asm.hh"
+#include "emission_asm.hh"
+#include "parser/parser_asm.hh"
 #include <fstream>
 #include <filesystem> // For file existence check
 
@@ -38,30 +41,40 @@ int main(int argc, char** argv) {
                  "Input source file")->required()->check(CLI::ExistingFile);
   app.add_flag("-O,--optimize", optimize, "Enable optimizations");
   app.add_option("-o,--output", output_file, "Output executable name");
-  app.add_flag("-r, --reverse", output_file, "Compile from assembly to C");
+  app.add_flag("-r, --reverse", asm_code=false, "Compile from assembly to C");
 
   CLI11_PARSE(app, argc, argv);
+
+    std::cout<<"oui "<<output_file<< " "<<asm_code<<std::endl;
 
   try {
     std::string fileContent = readFileToString(input_file);
     Lexer l(fileContent, !asm_code);
 
-    if (!asm_code) {
+    std::string output;
 
+    if (!asm_code) {
       Parser p(l.Tokens());
       auto scug = eval(p.ParseProgram());
       Emitor e(std::move(scug));
-      std::string output = e.Emit();
 
-      std::ofstream file(output_file);  // Creates/overwrites the file
-
-      if (file.is_open()) {
-        file << output;
-        file.close();
-      } else
-        std::cerr << "Failed to create file!\n";
-
+      output = e.Emit();
     }
+    else{
+      Parser_asm p(l.Tokens());
+      Ast_Parser_Asm parser(p.ParseProgram());
+      Emitor_asm e(parser.ParseProgram());
+
+      output = e.Emit();
+    }
+
+    std::ofstream file(output_file);  // Creates/overwrites the file
+
+    if (file.is_open()) {
+      file << output;
+      file.close();
+    } else
+      std::cerr << "Failed to create file!\n";
 
   } catch (const std::exception& e) {
     std::cerr << "Error: " << e.what() << std::endl;

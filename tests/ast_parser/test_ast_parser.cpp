@@ -55,7 +55,7 @@ TEST(AstParserTest, BasicProgramTest) {
               nullptr) << "Expected non-null return statement pointer";
 
     if (p_return_statement)
-      EXPECT_EQ(p_return_statement->return_value()->Evaluate(), 1);
+      EXPECT_EQ(p_return_statement->return_value()->Evaluate(), "1");
   }
 }
 

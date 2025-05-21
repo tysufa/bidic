@@ -31,6 +31,7 @@ std::shared_ptr<scug::Instruction> Ast_Parser_Asm::ParseInstruction(int &_index,
     std::cout<<"parse instr"<<_index<<std::endl;
     while(inst[_index]->isoperation()==true && std::dynamic_pointer_cast<scav::Operation>(inst[_index])->get_dst()=="eax"){
         std::cout<<_index<<" kazueyfgqkzeuyfgqzef   "<<inst[_index]->TypeInstruction()<<std::endl;
+        std::cout<<std::dynamic_pointer_cast<scav::Operation>(inst[_index])->get_dst()<<" "<<std::dynamic_pointer_cast<scav::Operation>(inst[_index])->value()<<std::endl;
         std::dynamic_pointer_cast<scav::Operation>(inst[_index])->update(_eax);
         ++_index;
     }
@@ -53,21 +54,39 @@ std::shared_ptr<scug::Instruction> Ast_Parser_Asm::ParseInstruction(int &_index,
                 return std::make_shared<scug::Move>(operation->get_dst(),operation->Evaluate());
             }
         }
-        else if(inst[_index]->TypeInstruction()=="MultInstruction"){
+        else if(inst[_index]->TypeInstruction()=="ImulInstruction"){
             if(operation->value()=="eax"){
                 return std::make_shared<scug::Move>(operation->get_dst(),std::make_shared<scug::BinaryExpression>(BinaryOperation::kMultply,dst,_eax));
             }
             else{
                 return std::make_shared<scug::Move>(operation->get_dst(),std::make_shared<scug::BinaryExpression>(BinaryOperation::kMultply,dst,operation->Evaluate()));
-            }        }
+            }        
+        }
         else if(inst[_index]->TypeInstruction()=="AddInstruction"){
             if(operation->value()=="eax"){
                 return std::make_shared<scug::Move>(operation->get_dst(),std::make_shared<scug::BinaryExpression>(BinaryOperation::kPlus,dst,_eax));
             }
             else{
                 return std::make_shared<scug::Move>(operation->get_dst(),std::make_shared<scug::BinaryExpression>(BinaryOperation::kPlus,dst,operation->Evaluate()));
-            }        }
-        else throw std::runtime_error("no other operation than move at the moment");
+            }        
+        }
+        else if(inst[_index]->TypeInstruction()=="NegInstruction"){
+            if(operation->value()=="eax"){
+                return std::make_shared<scug::Move>(operation->get_dst(),std::make_shared<scug::UnaryExpression>(UnaryOperation::kNegate,_eax));
+            }
+            else{
+                return std::make_shared<scug::Move>(operation->get_dst(),std::make_shared<scug::UnaryExpression>(UnaryOperation::kNegate,operation->Evaluate()));
+            }        
+        }
+        else if(inst[_index]->TypeInstruction()=="NotInstruction"){
+            if(operation->value()=="eax"){
+                return std::make_shared<scug::Move>(operation->get_dst(),std::make_shared<scug::UnaryExpression>(UnaryOperation::kComplement,_eax));
+            }
+            else{
+                return std::make_shared<scug::Move>(operation->get_dst(),std::make_shared<scug::UnaryExpression>(UnaryOperation::kComplement,operation->Evaluate()));
+            }        
+        }
+        else throw std::runtime_error("no other operation than move at the moment : "+inst[_index]->TypeInstruction());
         // return ParseOperation();
     }
     else if(inst[_index]->TypeInstruction()=="FunctionDeclaration"){

@@ -9,6 +9,44 @@
 enum class UnaryOperation {kNegate, kComplement};
 enum class BinaryOperation {kMinus, kPlus, kDivide, kMultply, kModulo};
 
+inline std::string binopto_string(BinaryOperation b){
+  switch (b)
+  {
+  case BinaryOperation::kMinus:
+    return "-";
+    break;
+  case BinaryOperation::kPlus:
+    return "+";
+    break;
+  case BinaryOperation::kDivide:
+    return "/";
+    break;
+  case BinaryOperation::kMultply:
+    return "*";
+    break;
+  case BinaryOperation::kModulo:
+    return "%";
+    break;
+  default:
+    throw std::runtime_error("unknow binary operation");
+    break;
+  }
+}
+
+inline std::string unopto_string(UnaryOperation u){
+  switch(u){
+    case UnaryOperation::kNegate:
+      return "-";
+      break;
+    case UnaryOperation::kComplement:
+      return "~";
+      break;
+    default:
+      throw std::runtime_error("unknow unary operation");
+      break;
+  }
+}
+
 // inline std::string RegisterToString(Register r) {
 //   static const char* names[] = {"eax", "ebx", "ecx", "edx",
 //                                 "ebp", "esp", "esi", "edi"
@@ -22,7 +60,7 @@ using namespace scug;
 
 class Expression {
  public:
-  virtual int Evaluate() const = 0;
+  virtual std::string Evaluate() const = 0;
   //TODO: value() should be replaced by Evaluate(), it is here juste to test
   //that you can replace Constant by Expression
   virtual int value() const = 0;
@@ -38,7 +76,7 @@ class Variable : public Expression {
 
   const std::string& name() const {return _name;}
 
-  int Evaluate() const override {return 0;}
+  std::string Evaluate() const override {return _name;}
   int value() const override {return 0;}
 
   std::string ExpressionType() const override {return "Variable";}
@@ -55,7 +93,7 @@ class Constant : public Expression{
     : _value(value) {}
 
   int value() const override {return _value;}
-  int Evaluate() const override {return _value;}
+  std::string Evaluate() const override {return std::to_string(_value);}
 
   // std::string TypeInstruction() const override {return "Constant";}
   std::string ExpressionType() const override {return "Constant";}
@@ -182,7 +220,7 @@ class BinaryExpression : public Expression{
   const std::shared_ptr<Expression>& src1() const {return _src1;}
   const std::shared_ptr<Expression>& src2() const {return _src2;}
 
-  int Evaluate() const override{return 0;}
+  std::string Evaluate() const override{return "("+_src1->Evaluate()+binopto_string(_binary_operation)+_src2->Evaluate()+")";}
   int value() const override{return 0;}
   std::string ExpressionType() const override {return "Binary";};
 
@@ -206,6 +244,23 @@ class Unary : public Instruction{
  private:
   std::unique_ptr<Expression> _src;
   std::unique_ptr<Variable> _dst;
+  UnaryOperation _unary_operation;
+};
+
+class UnaryExpression : public Expression{
+ public:
+  UnaryExpression(UnaryOperation unary_op, std::shared_ptr<Expression> src)
+    : _unary_operation(unary_op), _src(std::move(src)) {}
+
+  UnaryOperation unary_operation() const {return _unary_operation;}
+  const std::shared_ptr<Expression>& src() const {return _src;}
+  std::string Evaluate() const override{return unopto_string(_unary_operation)+"("+_src->Evaluate()+")";}
+  int value() const override{return 0;}
+
+  std::string ExpressionType() const override {return "Unary";};
+
+ private:
+  std::shared_ptr<Expression> _src;
   UnaryOperation _unary_operation;
 };
 

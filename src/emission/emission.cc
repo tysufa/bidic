@@ -22,7 +22,7 @@ std::string Emitor::ExpressionToStr(const std::shared_ptr<scug::Expression>&
   if (const auto& var = dynamic_cast<scug::Variable const*>(expr.get()))
     return ReplacePseudoRegister(var->name());
   else
-    return std::to_string(expr->Evaluate());
+    return /*std::to_string*/(expr->Evaluate());
 }
 
 std::string Emitor::Emit() {
@@ -102,7 +102,7 @@ std::string Emitor::Emit() {
                   + ReplacePseudoRegister(src_variable->name()) + "\n";
       else // if it's not a variable, it is a Constant, we don't check to go fast
         result += indent + "mov " + ReplacePseudoRegister(p_unary->dst()->name()) + ", "
-                  + std::to_string(p_unary->src()->Evaluate()) + "\n";
+                  + /*std::to_string*/(p_unary->src()->Evaluate()) + "\n";
 
       result += indent + (p_unary->unary_operation() == UnaryOperation::kNegate ?
                           "neg " : "not ") + ReplacePseudoRegister(p_unary->dst()->name()) + "\n";
@@ -127,7 +127,7 @@ std::string Emitor::Emit() {
 
     } else if (p_function) {
 
-      result += indent + "." + p_function->identifier()->name() + "\n";
+      result += indent + p_function->identifier()->name() + ":\n";
       indent += "  ";
 
       // add new instructions from function to the list

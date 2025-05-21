@@ -26,6 +26,8 @@ class Parser_asm {
   std::shared_ptr<scav::Move> ParseMove();
   std::shared_ptr<scav::Mult> ParseMult();
   std::shared_ptr<scav::Add> ParseAdd();
+  std::shared_ptr<scav::Neg> ParseNeg();
+  std::shared_ptr<scav::Not> ParseNot();
   std::string ParseRegister();
   std::string ConsumeToken();
 

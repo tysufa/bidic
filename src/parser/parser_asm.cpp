@@ -40,6 +40,14 @@ std::shared_ptr<scav::Instruction> Parser_asm::ParseInstruction() {
       std::cout<<"add"<<std::endl;
       return ParseAdd();
       break;
+    case TokenType::kNeg:
+      std::cout<<"neg"<<std::endl;
+      return ParseNeg();
+      break;
+    case TokenType::kNot:
+      std::cout<<"not"<<std::endl;
+      return ParseNot();
+      break;
     case TokenType::kReturn:
       std::cout<<"return"<<std::endl;
       return ParseReturn();
@@ -118,6 +126,20 @@ std::shared_ptr<scav::Add> Parser_asm::ParseAdd(){
   else value=ParseRegister();
   CheckCurToken(TokenType::kNL);
   return std::make_shared<scav::Add>(reg,value);
+}
+
+std::shared_ptr<scav::Neg> Parser_asm::ParseNeg(){
+  ConsumeToken();
+  std::string reg=ParseRegister();
+  CheckCurToken(TokenType::kNL);
+  return std::make_shared<scav::Neg>(reg);
+}
+
+std::shared_ptr<scav::Not> Parser_asm::ParseNot(){
+  ConsumeToken();
+  std::string reg=ParseRegister();
+  CheckCurToken(TokenType::kNL);
+  return std::make_shared<scav::Not>(reg);
 }
 
 std::string Parser_asm::ParseRegister(){

@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <iostream>
 
 // enum class Register { eax, ebx, ecx, edx, ebp, esp, esi, edi };
 
@@ -152,6 +153,7 @@ class Move : public scav::Operation {
 
   void update(std::shared_ptr<scug::Expression> &eax) const override{
     if(value()=="eax"){
+
     }
     else{
       eax=Evaluate();
@@ -174,8 +176,9 @@ class Mult : public scav::Operation {
     if(value()=="eax"){
       eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kMultply, eax, eax);
     }
-    eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kMultply, eax, Evaluate());
-    // if(_value[0]=='e'){
+    else{
+      eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kMultply, eax, Evaluate());
+    }    // if(_value[0]=='e'){
     //   if(_value=="eax"){
 
     //   }
@@ -202,8 +205,58 @@ class Add : public scav::Operation {
     if(value()=="eax"){
       eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kPlus, eax, eax);
     }
-    eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kPlus, eax, Evaluate());
+    else{
+      eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kPlus, eax, Evaluate());
+    }
     // if(_value[0]=='e'){
+    //   eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kPlus, contexte[get_dst()], contexte[_value]);
+    // }
+    // else{
+    //   eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kPlus, contexte[get_dst()],std::make_shared<scug::Constant>(std::stoi(_value)));
+    // }
+  } 
+
+};
+
+class Neg : public scav::Operation {
+ public:
+  Neg(std::string dst)
+    : Operation(dst,dst) {}
+
+  std::string TypeInstruction() const override { return "NegInstruction"; };
+
+  void update(std::shared_ptr<scug::Expression> &eax) const override{
+    if(value()=="eax"){
+      eax=std::make_shared<scug::UnaryExpression>(UnaryOperation::kNegate, eax);
+    }
+    else{
+      eax=std::make_shared<scug::UnaryExpression>(UnaryOperation::kNegate, Evaluate());
+    }
+
+    // if(_value[0]=='e'){
+    //   eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kPlus, contexte[get_dst()], contexte[_value]);
+    // }
+    // else{
+    //   eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kPlus, contexte[get_dst()],std::make_shared<scug::Constant>(std::stoi(_value)));
+    // }
+  } 
+
+};
+
+class Not : public scav::Operation {
+ public:
+  Not(std::string dst)
+    : Operation(dst,dst) {}
+
+  std::string TypeInstruction() const override { return "NotInstruction"; };
+
+  void update(std::shared_ptr<scug::Expression> &eax) const override{
+    if(value()=="eax"){
+      eax=std::make_shared<scug::UnaryExpression>(UnaryOperation::kComplement, eax);
+    }
+    else{
+      eax=std::make_shared<scug::UnaryExpression>(UnaryOperation::kNegate, Evaluate());
+    }    // if(_value[0]=='e'){
     //   eax=std::make_shared<scug::BinaryExpression>(BinaryOperation::kPlus, contexte[get_dst()], contexte[_value]);
     // }
     // else{

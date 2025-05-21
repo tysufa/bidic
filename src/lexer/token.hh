@@ -32,6 +32,7 @@ enum class TokenType {
   kImul,
   kAdd,
   kNeg,
+  kNot,
   kComma,
   kLeftSquareBracket,
   kRightSquareBracket,
@@ -145,6 +146,10 @@ inline std::string StringTokenType(const TokenType& tok) {
       return "kNeg";
       break;
 
+    case TokenType::kNot:
+      return "kNot";
+      break;
+
     case TokenType::kComma :
       return "kComma" ;
       break;
@@ -179,6 +184,7 @@ inline std::unordered_map<std::string, TokenType> AsmKeywords = {
   {"mov", TokenType::kMov},
   {"imul", TokenType::kImul},
   {"neg", TokenType::kNeg},
+  {"not", TokenType::kNot},
   {"add", TokenType::kAdd},
   {"ret", TokenType::kReturn},
   {"eax", TokenType::kRegister},

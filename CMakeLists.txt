@@ -64,6 +64,7 @@ target_link_libraries(Ast_parser PRIVATE Ast Parser)
 # --- Emitor Library ---
 add_library(Emitor STATIC
   ./src/emission/emission.cc
+  ./src/emission/emission_asm.cpp
 )
 
 target_include_directories(Emitor PUBLIC
