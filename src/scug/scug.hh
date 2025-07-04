@@ -4,14 +4,17 @@
 #include <string>
 #include <vector>
 
-// enum class Register { eax, ebx, ecx, edx, ebp, esp, esi, edi };
+/*
+ Scug is the name of the AST that we generate from the basic C code.
+ It is the first abstraction in the process.
+*/
 
-enum class UnaryOperation {kNegate, kComplement};
-enum class BinaryOperation {kMinus, kPlus, kDivide, kMultply, kModulo};
+enum class UnaryOperation { kNegate, kComplement };
+enum class BinaryOperation { kMinus, kPlus, kDivide, kMultply, kModulo };
 
-inline std::string binopto_string(BinaryOperation b){
-  switch (b)
-  {
+// TODO: explain what this function does
+inline std::string binopto_string(BinaryOperation b) {
+  switch (b) {
   case BinaryOperation::kMinus:
     return "-";
     break;
@@ -33,74 +36,74 @@ inline std::string binopto_string(BinaryOperation b){
   }
 }
 
-inline std::string unopto_string(UnaryOperation u){
-  switch(u){
-    case UnaryOperation::kNegate:
-      return "-";
-      break;
-    case UnaryOperation::kComplement:
-      return "~";
-      break;
-    default:
-      throw std::runtime_error("unknow unary operation");
-      break;
+inline std::string unopto_string(UnaryOperation u) {
+  switch (u) {
+  case UnaryOperation::kNegate:
+    return "-";
+    break;
+  case UnaryOperation::kComplement:
+    return "~";
+    break;
+  default:
+    throw std::runtime_error("unknow unary operation");
+    break;
   }
 }
 
 namespace scug {
 using namespace scug;
 
-
+// expressions are pieces of code who produce a result, for example 1+2*3
 class Expression {
- public:
+public:
   virtual std::string Evaluate() const = 0;
-  //TODO: value() should be replaced by Evaluate(), it is here juste to test
-  //that you can replace Constant by Expression
+  // TODO: value() should be replaced by Evaluate(), it is here juste to test
+  // that you can replace Constant by Expression
   virtual int value() const = 0;
 
   virtual std::string ExpressionType() const = 0;
-
 };
 
+// A variable is an expression because it's a value, and you can still use it in
+// expressions
 class Variable : public Expression {
- public:
-  Variable(const std::string& name)
-    : _name(name) {}
+public:
+  Variable(const std::string &name) : _name(name) {}
 
-  const std::string& name() const {return _name;}
+  const std::string &name() const { return _name; }
 
-  std::string Evaluate() const override {return _name;}
-  int value() const override {return 0;}
+  std::string Evaluate() const override { return _name; }
+  int value() const override { return 0; }
 
-  std::string ExpressionType() const override {return "Variable";}
+  std::string ExpressionType() const override { return "Variable"; }
 
- private:
+private:
   std::string _name;
 };
 
 // TODO: For now Constant is only integers, later we need to make it a virtual
 // class and make subclasses for other types
-class Constant : public Expression{
- public:
-  Constant(int value)
-    : _value(value) {}
+class Constant : public Expression {
+public:
+  Constant(int value) : _value(value) {}
 
-  int value() const override {return _value;}
-  std::string Evaluate() const override {return std::to_string(_value);}
-  std::string ExpressionType() const override {return "Constant";}
+  int value() const override { return _value; }
+  std::string Evaluate() const override { return std::to_string(_value); }
+  std::string ExpressionType() const override { return "Constant"; }
 
- private:
+private:
   int _value;
 };
 
 class Instruction {
- public:
-  virtual std::string TypeInstruction() const = 0; 
- private:
+public:
+  virtual std::string TypeInstruction() const = 0;
+
+private:
 };
 
 class Program {
- public:
+public:
   Program() = default;
 
   std::vector<std::shared_ptr<Instruction>> instructions() {
@@ -110,24 +113,24 @@ class Program {
     _instructions.push_back(std::move(instruction));
   }
 
- private:
+private:
   std::vector<std::shared_ptr<Instruction>> _instructions;
 };
 
 class Identifier {
- public:
+public:
   Identifier(const std::string &name) : _name(name) {}
 
-  const std::string& name() const { return _name; }
+  const std::string &name() const { return _name; }
 
- private:
+private:
   std::string _name;
 };
 
 class FunctionDeclaration : public scug::Instruction {
- public:
+public:
   FunctionDeclaration(std::unique_ptr<Identifier> ident)
-    : _identifier(std::move(ident)) {}
+      : _identifier(std::move(ident)) {}
 
   std::string TypeInstruction() const override {
     return "FunctionDeclaration";
@@ -137,21 +140,21 @@ class FunctionDeclaration : public scug::Instruction {
     return std::move(_instructions);
   }
 
-  const std::unique_ptr<Identifier>& identifier() const { return _identifier; }
+  const std::unique_ptr<Identifier> &identifier() const { return _identifier; }
 
   void add_instruction(std::shared_ptr<Instruction> instruction) {
     _instructions.push_back(std::move(instruction));
   }
 
- private:
+private:
   std::vector<std::shared_ptr<Instruction>> _instructions;
   std::unique_ptr<Identifier> _identifier;
 };
 
 class Move : public Instruction {
- public:
+public:
   Move(std::string reg, std::shared_ptr<Expression> value)
-    : _register(reg), _value(value) {}
+      : _register(reg), _value(value) {}
 
   std::string TypeInstruction() const override { return "MoveInstruction"; };
 
@@ -159,19 +162,21 @@ class Move : public Instruction {
   // std::string get_register_str() { return RegisterToString(_register); };
   std::shared_ptr<Expression> value() const { return _value; };
 
- private:
+private:
   std::string _register;
   std::shared_ptr<Expression> _value;
 };
 
 class Return : public Instruction {
- public:
+public:
   Return(std::shared_ptr<Expression> return_value)
-    : _return_value(std::move(return_value)) {}
+      : _return_value(std::move(return_value)) {}
 
   std::string TypeInstruction() const override { return "Return"; }
 
-  const std::shared_ptr<Expression>& return_value() const {return _return_value;}
+  const std::shared_ptr<Expression> &return_value() const {
+    return _return_value;
+  }
 
   // std::unique_ptr<Move> move() const {
   //   return std::make_unique<Move>(
@@ -179,80 +184,91 @@ class Return : public Instruction {
   //   );
   // }
 
- private:
+private:
   std::shared_ptr<Expression> _return_value;
 };
 
-class Binary : public Instruction{
- public:
-  Binary(BinaryOperation binary_op, std::shared_ptr<Expression> src1, std::shared_ptr<Expression> src2, std::shared_ptr<Variable> dst)
-    : _binary_operation(binary_op), _src1(std::move(src1)), _src2(std::move(src2)), _dst(std::move(dst)) {}
+class Binary : public Instruction {
+public:
+  Binary(BinaryOperation binary_op, std::shared_ptr<Expression> src1,
+         std::shared_ptr<Expression> src2, std::shared_ptr<Variable> dst)
+      : _binary_operation(binary_op), _src1(std::move(src1)),
+        _src2(std::move(src2)), _dst(std::move(dst)) {}
 
-  BinaryOperation binary_operation() const {return _binary_operation;}
-  const std::shared_ptr<Variable>& dst() const {return _dst;}
-  const std::shared_ptr<Expression>& src1() const {return _src1;}
-  const std::shared_ptr<Expression>& src2() const {return _src2;}
+  BinaryOperation binary_operation() const { return _binary_operation; }
+  const std::shared_ptr<Variable> &dst() const { return _dst; }
+  const std::shared_ptr<Expression> &src1() const { return _src1; }
+  const std::shared_ptr<Expression> &src2() const { return _src2; }
 
-  std::string TypeInstruction() const override {return "Binary";};
+  std::string TypeInstruction() const override { return "Binary"; };
 
- private:
+private:
   std::shared_ptr<Expression> _src1;
   std::shared_ptr<Expression> _src2;
   std::shared_ptr<Variable> _dst;
   BinaryOperation _binary_operation;
 };
 
-class BinaryExpression : public Expression{
- public:
-  BinaryExpression(BinaryOperation binary_op, std::shared_ptr<Expression> src1, std::shared_ptr<Expression> src2)
-    : _binary_operation(binary_op), _src1(std::move(src1)), _src2(std::move(src2)) {}
+class BinaryExpression : public Expression {
+public:
+  BinaryExpression(BinaryOperation binary_op, std::shared_ptr<Expression> src1,
+                   std::shared_ptr<Expression> src2)
+      : _binary_operation(binary_op), _src1(std::move(src1)),
+        _src2(std::move(src2)) {}
 
-  BinaryOperation binary_operation() const {return _binary_operation;}
-  const std::shared_ptr<Expression>& src1() const {return _src1;}
-  const std::shared_ptr<Expression>& src2() const {return _src2;}
+  BinaryOperation binary_operation() const { return _binary_operation; }
+  const std::shared_ptr<Expression> &src1() const { return _src1; }
+  const std::shared_ptr<Expression> &src2() const { return _src2; }
 
-  std::string Evaluate() const override{return "("+_src1->Evaluate()+binopto_string(_binary_operation)+_src2->Evaluate()+")";}
-  int value() const override{return 0;}
-  std::string ExpressionType() const override {return "Binary";};
+  std::string Evaluate() const override {
+    return "(" + _src1->Evaluate() + binopto_string(_binary_operation) +
+           _src2->Evaluate() + ")";
+  }
+  int value() const override { return 0; }
+  std::string ExpressionType() const override { return "Binary"; };
 
- private:
+private:
   std::shared_ptr<Expression> _src1;
   std::shared_ptr<Expression> _src2;
   BinaryOperation _binary_operation;
 };
 
-class Unary : public Instruction{
- public:
-  Unary(UnaryOperation unary_op, std::unique_ptr<Expression> src, std::unique_ptr<Variable> dst)
-    : _unary_operation(unary_op), _src(std::move(src)), _dst(std::move(dst)) {}
+class Unary : public Instruction {
+public:
+  Unary(UnaryOperation unary_op, std::unique_ptr<Expression> src,
+        std::unique_ptr<Variable> dst)
+      : _unary_operation(unary_op), _src(std::move(src)), _dst(std::move(dst)) {
+  }
 
-  UnaryOperation unary_operation() const {return _unary_operation;}
-  const std::unique_ptr<Variable>& dst() const {return _dst;}
-  const std::unique_ptr<Expression>& src() const {return _src;}
+  UnaryOperation unary_operation() const { return _unary_operation; }
+  const std::unique_ptr<Variable> &dst() const { return _dst; }
+  const std::unique_ptr<Expression> &src() const { return _src; }
 
-  std::string TypeInstruction() const override {return "Unary";};
+  std::string TypeInstruction() const override { return "Unary"; };
 
- private:
+private:
   std::unique_ptr<Expression> _src;
   std::unique_ptr<Variable> _dst;
   UnaryOperation _unary_operation;
 };
 
-class UnaryExpression : public Expression{
- public:
+class UnaryExpression : public Expression {
+public:
   UnaryExpression(UnaryOperation unary_op, std::shared_ptr<Expression> src)
-    : _unary_operation(unary_op), _src(std::move(src)) {}
+      : _unary_operation(unary_op), _src(std::move(src)) {}
 
-  UnaryOperation unary_operation() const {return _unary_operation;}
-  const std::shared_ptr<Expression>& src() const {return _src;}
-  std::string Evaluate() const override{return unopto_string(_unary_operation)+"("+_src->Evaluate()+")";}
-  int value() const override{return 0;}
+  UnaryOperation unary_operation() const { return _unary_operation; }
+  const std::shared_ptr<Expression> &src() const { return _src; }
+  std::string Evaluate() const override {
+    return unopto_string(_unary_operation) + "(" + _src->Evaluate() + ")";
+  }
+  int value() const override { return 0; }
 
-  std::string ExpressionType() const override {return "Unary";};
+  std::string ExpressionType() const override { return "Unary"; };
 
- private:
+private:
   std::shared_ptr<Expression> _src;
   UnaryOperation _unary_operation;
 };
 
-} // namespace nast
+} // namespace scug
