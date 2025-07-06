@@ -7,6 +7,7 @@
 /*
  Scug is the name of the AST that we generate from the basic C code.
  It is the first abstraction in the process.
+ lexer -> parser -> scug -> ast_parser -> scav -> emission
 */
 
 enum class UnaryOperation { kNegate, kComplement };
@@ -95,6 +96,7 @@ private:
   int _value;
 };
 
+// an instruction is clear, it's anything that does something
 class Instruction {
 public:
   virtual std::string TypeInstruction() const = 0;
@@ -102,6 +104,8 @@ public:
 private:
 };
 
+// program is the class who stores all the instructions, it's role is mainly to
+// add things to a vector
 class Program {
 public:
   Program() = default;
@@ -117,6 +121,8 @@ private:
   std::vector<std::shared_ptr<Instruction>> _instructions;
 };
 
+// an identifier is an name attached to a value, it can be a variable name, a
+// function name and maybe more later
 class Identifier {
 public:
   Identifier(const std::string &name) : _name(name) {}
@@ -127,6 +133,8 @@ private:
   std::string _name;
 };
 
+// pretty self explanatory, you stock the identifier of the function and the
+// instructions
 class FunctionDeclaration : public scug::Instruction {
 public:
   FunctionDeclaration(std::unique_ptr<Identifier> ident)
@@ -151,6 +159,7 @@ private:
   std::unique_ptr<Identifier> _identifier;
 };
 
+// TODO: check if this class is really used in this ast
 class Move : public Instruction {
 public:
   Move(std::string reg, std::shared_ptr<Expression> value)
@@ -188,6 +197,8 @@ private:
   std::shared_ptr<Expression> _return_value;
 };
 
+// A binary instruction is for example 1 + 2; it takes 2 input and a type of
+// operation
 class Binary : public Instruction {
 public:
   Binary(BinaryOperation binary_op, std::shared_ptr<Expression> src1,
@@ -209,6 +220,7 @@ private:
   BinaryOperation _binary_operation;
 };
 
+// TODO: find the difference between BinaryExpression and Binary : Instruction
 class BinaryExpression : public Expression {
 public:
   BinaryExpression(BinaryOperation binary_op, std::shared_ptr<Expression> src1,
@@ -233,6 +245,7 @@ private:
   BinaryOperation _binary_operation;
 };
 
+// -1 for example
 class Unary : public Instruction {
 public:
   Unary(UnaryOperation unary_op, std::unique_ptr<Expression> src,
@@ -252,6 +265,8 @@ private:
   UnaryOperation _unary_operation;
 };
 
+// TODO: same problem than binary, find the difference between expression and
+// instruction
 class UnaryExpression : public Expression {
 public:
   UnaryExpression(UnaryOperation unary_op, std::shared_ptr<Expression> src)
