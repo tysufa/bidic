@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+// TODO: check if ast is the first ast or scug
 /*
  Scug is the name of the AST that we generate from the basic C code.
  It is the first abstraction in the process.

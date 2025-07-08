@@ -1,16 +1,15 @@
-#include "CLI11.hpp"
+#include "CLI11.hpp" // The hhp module to do cli applications
 #include "ast_parser.hh"
+#include "ast_parser_asm.hh"
 #include "emission.hh"
+#include "emission_asm.hh"
 #include "lexer.hh"
 #include "parser/parser.hh"
-#include "ast_parser_asm.hh"
-#include "emission_asm.hh"
 #include "parser/parser_asm.hh"
-#include <fstream>
 #include <filesystem> // For file existence check
+#include <fstream>
 
-
-std::string readFileToString(const std::string& filePath) {
+std::string readFileToString(const std::string &filePath) {
   // Check if file exists first (optional but recommended)
   if (!std::filesystem::exists(filePath))
     throw std::runtime_error("File not found: " + filePath);
@@ -22,13 +21,11 @@ std::string readFileToString(const std::string& filePath) {
     throw std::runtime_error("Failed to open file: " + filePath);
 
   // Read entire content into string
-  return std::string(
-             (std::istreambuf_iterator<char>(file)),
-             std::istreambuf_iterator<char>()
-         );
+  return std::string((std::istreambuf_iterator<char>(file)),
+                     std::istreambuf_iterator<char>());
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
   CLI::App app{"MyCompiler - A simple C++ compiler"};
 
   // Add options/flags
@@ -37,11 +34,12 @@ int main(int argc, char** argv) {
   std::string output_file = "a.out";
   bool asm_code = true;
 
-  app.add_option("input_file,-i,--input", input_file,
-                 "Input source file")->required()->check(CLI::ExistingFile);
+  app.add_option("input_file,-i,--input", input_file, "Input source file")
+      ->required()
+      ->check(CLI::ExistingFile);
   app.add_flag("-O,--optimize", optimize, "Enable optimizations");
   app.add_option("-o,--output", output_file, "Output executable name");
-  app.add_flag("-r, --reverse", asm_code=false, "Compile from assembly to C");
+  app.add_flag("-r, --reverse", asm_code = false, "Compile from assembly to C");
 
   CLI11_PARSE(app, argc, argv);
 
@@ -57,8 +55,7 @@ int main(int argc, char** argv) {
       Emitor e(std::move(scug));
 
       output = e.Emit();
-    }
-    else{
+    } else {
       Parser_asm p(l.Tokens());
       Ast_Parser_Asm parser(p.ParseProgram());
       Emitor_asm e(parser.ParseProgram());
@@ -66,7 +63,7 @@ int main(int argc, char** argv) {
       output = e.Emit();
     }
 
-    std::ofstream file(output_file);  // Creates/overwrites the file
+    std::ofstream file(output_file); // Creates/overwrites the file
 
     if (file.is_open()) {
       file << output;
@@ -74,7 +71,7 @@ int main(int argc, char** argv) {
     } else
       std::cerr << "Failed to create file!\n";
 
-  } catch (const std::exception& e) {
+  } catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;
   }
 
