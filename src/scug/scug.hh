@@ -4,11 +4,11 @@
 #include <string>
 #include <vector>
 
-// TODO: check if ast is the first ast or scug
 /*
- Scug is the name of the AST that we generate from the basic C code.
- It is the first abstraction in the process.
- lexer -> parser -> scug -> ast_parser -> scav -> emission
+ Scug is the name of the AST that we generate from the first ast.
+ It is the second abstraction in the process.
+ lexer -> parser -> ast -> ast_parser -> scug ->
+ TODO: find which file is called after ast_parser generate the scug
 */
 
 enum class UnaryOperation { kNegate, kComplement };

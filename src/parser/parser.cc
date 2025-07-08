@@ -6,12 +6,21 @@
 #include <string>
 #include <utility>
 
+/*
+ * The parser takes a lexer in entry and generate an ast as output
+ *
+ */
+
 std::unique_ptr<ast::Program> Parser::ParseProgram() {
   auto program = std::make_unique<ast::Program>();
+  // we just place ourselves in at the first token
   _current_token_index = -2;
   ConsumeToken();
   ConsumeToken();
 
+  // TODO: make the parser be able to treat more than one instruction, currently
+  // it only reads the first instruction and then he stops there whatever there
+  // is next
   std::unique_ptr<ast::Instruction> instr = ParseInstruction();
   program->add_instruction(std::move(instr));
 
@@ -19,6 +28,7 @@ std::unique_ptr<ast::Program> Parser::ParseProgram() {
 }
 
 int Parser::Precedence(TokenType tok) {
+  // precedence : '(' > '+' | '-' | '~' > '*' | '/'
   if (tok == TokenType::kStar or tok == TokenType::kSlash)
     return 50;
   else if (tok == TokenType::kPlus or tok == TokenType::kMinus or
@@ -48,7 +58,7 @@ std::unique_ptr<ast::Expression> Parser::ParseExpression(int precedenceLimit) {
       ConsumeToken();
       std::unique_ptr<ast::Expression> right = ParseExpression(prec);
       left = std::make_unique<ast::BinaryExpression>(op, std::move(left),
-             std::move(right));
+                                                     std::move(right));
     } else
       return left;
   }
@@ -68,7 +78,8 @@ std::unique_ptr<ast::Expression> Parser::ParsePrefix() {
     // get rest of the expression
     expr = ParseExpression(Precedence(prefix_type));
 
-    prefix = std::make_unique<ast::PrefixExpression>(prefix_type, std::move(expr));
+    prefix =
+        std::make_unique<ast::PrefixExpression>(prefix_type, std::move(expr));
 
     return prefix;
 
@@ -78,7 +89,8 @@ std::unique_ptr<ast::Expression> Parser::ParsePrefix() {
 
     expr = ParseExpression(Precedence(prefix_type));
 
-    prefix = std::make_unique<ast::PrefixExpression>(prefix_type, std::move(expr));
+    prefix =
+        std::make_unique<ast::PrefixExpression>(prefix_type, std::move(expr));
 
     return prefix;
 
@@ -102,7 +114,8 @@ std::unique_ptr<ast::ReturnStatement> Parser::ParseReturnStatement() {
 
   std::unique_ptr<ast::Expression> res = ParseExpression(0);
 
-  auto return_statement = std::make_unique<ast::ReturnStatement>(std::move(res));
+  auto return_statement =
+      std::make_unique<ast::ReturnStatement>(std::move(res));
 
   CheckCurToken(TokenType::kSemiColon);
 
@@ -121,8 +134,8 @@ std::unique_ptr<ast::FunctionDeclaration>
 Parser::ParseFunctionDeclaration(Type declaration_type,
                                  std::unique_ptr<ast::Identifier> ident) {
 
-  auto function =
-      std::make_unique<ast::FunctionDeclaration>(std::move(ident), declaration_type);
+  auto function = std::make_unique<ast::FunctionDeclaration>(std::move(ident),
+                                                             declaration_type);
 
   ParseFunctionArguments();
 
@@ -139,27 +152,28 @@ Parser::ParseFunctionDeclaration(Type declaration_type,
   return function;
 }
 
-std::unique_ptr<ast::Declaration> Parser::ParseDeclaration(
-    Type declaration_type) {
+std::unique_ptr<ast::Declaration>
+Parser::ParseDeclaration(Type declaration_type) {
   ExpectToken(TokenType::kIdentifier);
 
   auto ident = std::make_unique<ast::Identifier>(_current_token.value);
   std::unique_ptr<ast::Declaration> instr;
 
   if (_next_token.type == TokenType::kEqual) {
-    instr = std::make_unique<ast::Declaration>(std::move(ident), declaration_type);
+    instr =
+        std::make_unique<ast::Declaration>(std::move(ident), declaration_type);
     ConsumeToken();
 
     switch (declaration_type) {
-      case Type::kInt:
-        ExpectToken(TokenType::kNumber);
-        ExpectToken(TokenType::kSemiColon);
-        ConsumeToken();
-        break;
+    case Type::kInt:
+      ExpectToken(TokenType::kNumber);
+      ExpectToken(TokenType::kSemiColon);
+      ConsumeToken();
+      break;
 
-      default:
-        return nullptr;
-        break;
+    default:
+      return nullptr;
+      break;
     }
 
   } else if (_next_token.type == TokenType::kLeftParenthesis)
@@ -173,17 +187,17 @@ std::unique_ptr<ast::Declaration> Parser::ParseDeclaration(
 
 std::unique_ptr<ast::Instruction> Parser::ParseInstruction() {
   switch (_current_token.type) {
-    case TokenType::kReturn:
-      return ParseReturnStatement();
-      break;
+  case TokenType::kReturn:
+    return ParseReturnStatement();
+    break;
 
-    case TokenType::kInt:
-      return ParseDeclaration(Type::kInt);
-      break;
+  case TokenType::kInt:
+    return ParseDeclaration(Type::kInt);
+    break;
 
-    default:
-      throw std::runtime_error("Expected instruction, got " +
-                               StringTokenType(_current_token.type) + " instead");
+  default:
+    throw std::runtime_error("Expected instruction, got " +
+                             StringTokenType(_current_token.type) + " instead");
   }
 }
 
